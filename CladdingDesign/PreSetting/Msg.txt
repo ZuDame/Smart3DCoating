@@ -1,0 +1,184 @@
+CladdingDesign
+包覆设计助手
+#
+#
+CD_ShortCutMenu
+启动快捷菜单(&R)...
+#
+#
+CD_ShortCutMenu Operator
+启动快捷菜单
+#
+#
+Show CD_ShortCutMenu Operator
+启动快捷菜单
+#
+#
+CD_Clean
+清理表面(&C)...
+#
+#
+CD_Clean Operator
+清理表面凸起
+#
+#
+Show CD_Clean Operator
+清理表面凸起
+#
+#
+CD_Create
+创建包覆面(&D)
+#
+#
+CD_Create Operator
+创建包覆面
+#
+#
+CD_RapidCreate
+快速创建(&R)...
+#
+#
+CD_RapidCreate Operator
+快速创建
+#
+#
+Show CD_RapidCreate Operator
+快速创建
+#
+#
+CD_CreateUseSrf
+从几何面创建(&S)...
+#
+#
+CD_CreateUseSrf Operator
+从几何面创建
+#
+#
+Show CD_CreateUseSrf Operator
+从几何面创建
+#
+#
+CD_CreateUseEdge
+从边界创建(&E)...
+#
+#
+CD_CreateUseEdge Operator
+从边界创建
+#
+#
+Show CD_CreateUseEdge Operator
+从边界创建
+#
+#
+CD_Trim
+裁剪(&T)...
+#
+#
+CD_Trim Operator
+裁剪包覆面
+#
+#
+Show CD_Trim Operator
+裁剪包覆面
+#
+#
+CD_Merge
+拼接(&M)...
+#
+#
+CD_Merge Operator
+拼接包覆面
+#
+#
+Show CD_Merge Operator
+拼接包覆面
+#
+#
+CD_Offset
+放量(&O)
+#
+#
+CD_Offset Operator
+放量
+#
+#
+CD_OffsetGeneral
+整体放量(&G)...
+#
+#
+CD_OffsetGeneral Operator
+将包覆面偏离一段距离
+#
+#
+Show CD_OffsetGeneral Operator
+将包覆面偏离一段距离
+#
+#
+CD_OffsetSingle
+单侧放量(&S)...
+#
+#
+CD_OffsetSingle Operator
+将包覆面向一侧偏离一段距离
+#
+#
+Show CD_OffsetSingle Operator
+将包覆面向一侧偏离一段距离
+#
+#
+CD_Bottom
+底面平齐(&B)
+#
+#
+CD_Bottom Operator
+确保包覆面集与模型底面平齐
+#
+#
+CD_BottomCut
+切除平齐(&C)...
+#
+#
+CD_BottomCut Operator
+向外放量时通过切除确保包覆面集与模型底面平齐
+#
+#
+Show CD_BottomCut Operator
+向外放量时通过切除确保包覆面集与模型底面平齐
+#
+#
+CD_BottomExpand
+延伸平齐(&E)...
+#
+#
+CD_BottomExpand Operator
+向内放量时通过延伸确保包覆面集与模型底面平齐
+#
+#
+Show CD_BottomExpand Operator
+向内放量时通过延伸确保包覆面集与模型底面平齐
+#
+#
+CD_Export
+导出STL(&S)...
+#
+#
+CD_Export Operator
+导出到STL文件
+#
+#
+Show CD_Export Operator
+导出到STL文件
+#
+#
+About_CladdingDesign Operator
+关于
+#
+#
+Show About_CladdingDesign Operator
+显示关于信息
+#
+#
+Prompt %0w
+%0w
+#
+#

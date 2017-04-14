@@ -1,0 +1,21 @@
+CD_Edit 编辑包覆面
+#
+#
+CD_Trim 裁剪
+选择包覆面和曲线进行裁剪
+#
+CD_Merge 拼接
+选择多个包覆面进行拼接
+#
+CD_OffsetGeneral 整体放量
+将包覆面整体偏离一段距离
+#
+CD_OffsetSingle 单侧放量
+将包覆面向一侧偏离一段距离
+#
+CD_BottomCut 切除平齐
+向外放量时通过切除确保包覆面集与模型底面平齐
+#
+CD_BottomExpand 延伸平齐
+向内放量时通过延伸确保包覆面集与模型底面平齐
+#

@@ -1,0 +1,7 @@
+Name      CladdingDesign
+Startup   DLL
+Exec_file C:\PreStart\CladdingDesign\CladdingDesign_Win64_ProE5.dll
+Text_dir  C:\PreStart\CladdingDesign\Text
+allow_stop true
+Revision  18
+End

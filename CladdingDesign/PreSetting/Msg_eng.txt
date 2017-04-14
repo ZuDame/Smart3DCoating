@@ -1,0 +1,184 @@
+CladdingDesign
+CladdingDesign
+#
+#
+CD_ShortCutMenu
+Start Shortcut menu(&R)...
+#
+#
+CD_ShortCutMenu Operator
+Start Shortcut menu
+#
+#
+Show CD_ShortCutMenu Operator
+Start Shortcut menu
+#
+#
+CD_Clean
+Clean(&C)...
+#
+#
+CD_Clean Operator
+Clean
+#
+#
+Show CD_Clean Operator
+Clean
+#
+#
+CD_Create
+Create Surface(&D)
+#
+#
+CD_Create Operator
+Create Surface
+#
+#
+CD_RapidCreate
+Rapid Create(&R)...
+#
+#
+CD_RapidCreate Operator
+Rapid Create
+#
+#
+Show CD_RapidCreate Operator
+Rapid Create
+#
+#
+CD_CreateUseSrf
+Create use Surface(&S)...
+#
+#
+CD_CreateUseSrf Operator
+Create use Surface
+#
+#
+Show CD_CreateUseSrf Operator
+Create use Surface
+#
+#
+CD_CreateUseEdge
+Create use Edges(&E)...
+#
+#
+CD_CreateUseEdge Operator
+Create use Edges
+#
+#
+Show CD_CreateUseEdge Operator
+Create use Edges
+#
+#
+CD_Trim
+Trim(&T)...
+#
+#
+CD_Trim Operator
+Trim
+#
+#
+Show CD_Trim Operator
+Trim
+#
+#
+CD_Merge
+Merge(&M)...
+#
+#
+CD_Merge Operator
+Merge
+#
+#
+Show CD_Merge Operator
+Merge
+#
+#
+CD_Offset
+Offset(&O)
+#
+#
+CD_Offset Operator
+Offset
+#
+#
+CD_OffsetGeneral
+Offset General(&G)...
+#
+#
+CD_OffsetGeneral Operator
+Offset General
+#
+#
+Show CD_OffsetGeneral Operator
+Offset General
+#
+#
+CD_OffsetSingle
+Offset Single(&S)...
+#
+#
+CD_OffsetSingle Operator
+Offset Single
+#
+#
+Show CD_OffsetSingle Operator
+Offset Single
+#
+#
+CD_Bottom
+Bottom parallel(&B)
+#
+#
+CD_Bottom Operator
+Bottom parallel
+#
+#
+CD_BottomCut
+Bottom Cut(&C)...
+#
+#
+CD_BottomCut Operator
+Cut Cladding to keep parallel
+#
+#
+Show CD_BottomCut Operator
+Cut Cladding to keep parallel
+#
+#
+CD_BottomExpand
+Bottom Expand(&E)...
+#
+#
+CD_BottomExpand Operator
+Expand Cladding to keep parallel
+#
+#
+Show CD_BottomExpand Operator
+Expand Cladding to keep parallel
+#
+#
+CD_Export
+Export STL(&S)...
+#
+#
+CD_Export Operator
+Export STL
+#
+#
+Show CD_Export Operator
+Export STL
+#
+#
+About_CladdingDesign Operator
+About
+#
+#
+Show About_CladdingDesign Operator
+Show About Tips
+#
+#
+Prompt %0w
+%0w
+#
+#

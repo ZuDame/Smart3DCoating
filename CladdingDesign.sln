@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CladdingDesign", "CladdingDesign\CladdingDesign.vcproj", "{90678416-3FD2-49DC-8C0C-63F0CFB83054}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_ProE5|Win32 = Debug_ProE5|Win32
+		Debug_ProE5|x64 = Debug_ProE5|x64
+		Release_Creo1|Win32 = Release_Creo1|Win32
+		Release_Creo1|x64 = Release_Creo1|x64
+		Release_Creo2|Win32 = Release_Creo2|Win32
+		Release_Creo2|x64 = Release_Creo2|x64
+		Release_ProE5|Win32 = Release_ProE5|Win32
+		Release_ProE5|x64 = Release_ProE5|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|Win32.ActiveCfg = Debug_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|Win32.Build.0 = Debug_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|x64.ActiveCfg = Debug_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|x64.Build.0 = Debug_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|Win32.ActiveCfg = Debug_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|Win32.Build.0 = Debug_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|x64.ActiveCfg = Debug_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Debug_ProE5|x64.Build.0 = Debug_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|Win32.ActiveCfg = Release_Creo1|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|Win32.Build.0 = Release_Creo1|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|x64.ActiveCfg = Release_Creo1|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|x64.Build.0 = Release_Creo1|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|Win32.ActiveCfg = Release_Creo2|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|Win32.Build.0 = Release_Creo2|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|x64.ActiveCfg = Release_Creo2|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|x64.Build.0 = Release_Creo2|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|Win32.ActiveCfg = Release_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|Win32.Build.0 = Release_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|x64.ActiveCfg = Release_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|x64.Build.0 = Release_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|Win32.ActiveCfg = Release_Creo1|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|Win32.Build.0 = Release_Creo1|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|x64.ActiveCfg = Release_Creo1|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo1|x64.Build.0 = Release_Creo1|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|Win32.ActiveCfg = Release_Creo2|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|Win32.Build.0 = Release_Creo2|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|x64.ActiveCfg = Release_Creo2|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_Creo2|x64.Build.0 = Release_Creo2|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|Win32.ActiveCfg = Release_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|Win32.Build.0 = Release_ProE5|Win32
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|x64.ActiveCfg = Release_ProE5|x64
+		{90678416-3FD2-49DC-8C0C-63F0CFB83054}.Release_ProE5|x64.Build.0 = Release_ProE5|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
