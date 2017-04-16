@@ -2165,130 +2165,131 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 	
 	if (nSrfIndex >= 0)
 	{
-		// 以该面为参照创建基准
-		ProModelitem itemTrimPlane;
-		int nDatumFeatID = CreateDatumPlane(pMdl, arrSelQltSrfs[nSrfIndex], itemTrimPlane);
-		if (nDatumFeatID > 0)
+		// 获取需要移除的面的全部边
+		vector<ProContour> arrTrimContour;
+		status = ProSurfaceContourVisit(arrQltSrfs[nSrfIndex], SurfaceExtContoursGetAction, NULL, &arrTrimContour);
+		vector<ProEdge> arrTrimEdges;
+		status = ProContourEdgeVisit(arrQltSrfs[nSrfIndex], arrTrimContour[0], ContourEdgesGetAction, NULL, &arrTrimEdges);
+		vector<ProSelection> arrSelTrimEdges;
+		for (int i=0; i<arrTrimEdges.size(); i++)
+		{
+			ProModelitem itemTrimEdge;
+			status = ProEdgeToGeomitem(ProMdlToSolid(pMdl), arrTrimEdges[i], &itemTrimEdge);
+			ProSelection selTrimEdge;
+			status = ProSelectionAlloc(NULL, &itemTrimEdge, &selTrimEdge);
+			arrSelTrimEdges.push_back(selTrimEdge);
+		}
+		// 根据边判断面的方向
+		int nTrimEdgeDir;
+		status = ProEdgeDirGet(arrTrimEdges[0], arrQltSrfs[nSrfIndex], &nTrimEdgeDir);
+		nTrimEdgeDir = nTrimEdgeDir*(-1);
+
+		int nExtendCount = 0;	// 记录需要偏移的面的个数
+
+		// 移除该面
+		int nTrimID = TrimSurface(pMdl, selQuilt, arrSelTrimEdges, nTrimEdgeDir);
+		if (nTrimID > 0)
 		{
 			// 相关特征id数据（用于最后创建组）
 			int* pArrFeatIDs = NULL;
 			status = ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&pArrFeatIDs);
-			status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nDatumFeatID);
+			status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nTrimID);
 
-			// 获取需要移除的面的全部边
-			vector<ProContour> arrTrimContour;
-			status = ProSurfaceContourVisit(arrQltSrfs[nSrfIndex], SurfaceExtContoursGetAction, NULL, &arrTrimContour);
-			vector<ProEdge> arrTrimEdges;
-			status = ProContourEdgeVisit(arrQltSrfs[nSrfIndex], arrTrimContour[0], ContourEdgesGetAction, NULL, &arrTrimEdges);
-			// 根据边判断面的方向
-			int nTrimEdgeDir;
-			status = ProEdgeDirGet(arrTrimEdges[0], arrQltSrfs[nSrfIndex], &nTrimEdgeDir);
-
-			int nExtendCount = 0;	// 记录需要偏移的面的个数
-
-			// 移除该面
-			ProSelection selTrimPlane;
-			status = ProSelectionAlloc(NULL, &itemTrimPlane, &selTrimPlane);
-			int nTrimID = TrimSurface(pMdl, selQuilt, selTrimPlane, nTrimEdgeDir);
-			if (nTrimID > 0)
+			// 获取需要延展的面的边界及对应的面
+			ProFeature featTrim;
+			featTrim.id = nTrimID;
+			featTrim.owner = pMdl;
+			featTrim.type = PRO_FEATURE;
+			vector<ProModelitem>arrItemExtendEdges;
+			status = ProFeatureGeomitemVisit(&featTrim, PRO_EDGE, FeatureGeomsGetAction, NULL, &arrItemExtendEdges);
+			for (int i=0; i<arrItemExtendEdges.size(); i++)
 			{
-				status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nTrimID);
-
-				// 获取需要延展的面的边界及对应的面
-				ProFeature featTrim;
-				featTrim.id = nTrimID;
-				featTrim.owner = pMdl;
-				featTrim.type = PRO_FEATURE;
-				vector<ProModelitem>arrItemExtendEdges;
-				status = ProFeatureGeomitemVisit(&featTrim, PRO_EDGE, FeatureGeomsGetAction, NULL, &arrItemExtendEdges);
-				for (int i=0; i<arrItemExtendEdges.size(); i++)
+				ProEdge edgeExtend;
+				status = ProGeomitemToEdge(&arrItemExtendEdges[i], &edgeExtend);
+				ProEdge edgeNeighbors[2];
+				ProSurface srfNeighbor[2];
+				status = ProEdgeNeighborsGet(edgeExtend, &edgeNeighbors[0], &edgeNeighbors[1], &srfNeighbor[0], &srfNeighbor[1]);
+				int nNeighbor = 0;
+				if (srfNeighbor[0] == NULL && srfNeighbor[1] != NULL)
 				{
-					ProEdge edgeExtend;
-					status = ProGeomitemToEdge(&arrItemExtendEdges[i], &edgeExtend);
-					ProEdge edgeNeighbors[2];
-					ProSurface srfNeighbor[2];
-					status = ProEdgeNeighborsGet(edgeExtend, &edgeNeighbors[0], &edgeNeighbors[1], &srfNeighbor[0], &srfNeighbor[1]);
-					int nNeighbor = 0;
-					if (srfNeighbor[0] == NULL && srfNeighbor[1] != NULL)
-					{
-						nNeighbor = 1;
-					}
-					else if (srfNeighbor[1] == NULL && srfNeighbor[0] != NULL)
-					{
-						nNeighbor = 0;
-					}
-					else
-						continue;
-
-					// 计算面的实际延展距离
-					ProGeomitemdata* pdataNeighborSrf = NULL;
-					status =ProSurfaceDataGet(srfNeighbor[nNeighbor], &pdataNeighborSrf);
-					int nTypeNeighborSrf = pdataNeighborSrf->data.p_surface_data->type;
-					if (nTypeNeighborSrf == PRO_SRF_PLANE)
-					{
-						// 如果是平面，获取面的法矢
-						ProVector vector1, vector2;
-						VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.plane.e3, vector1);
-						VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
-						double dCosAngle = GetVectorCosAngle(vector1, vector2);
-						if (dCosAngle != 1)
-						{
-							dDistance = dDistance/sqrt(1-dCosAngle*dCosAngle);
-						}
-					}
-					else if (nTypeNeighborSrf == PRO_SRF_CYL)
-					{
-						// 如果是圆柱面，获取面的法矢
-						ProVector vector1, vector2;
-						VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.cylinder.e1, vector1);
-						VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
-						double dCosAngle = GetVectorCosAngle(vector1, vector2);
-						if (dCosAngle != 1)
-						{
-							dDistance = dDistance/sqrt(1-dCosAngle*dCosAngle);
-						}
-					}
-					else if (nTypeNeighborSrf == PRO_SRF_CONE)
-					{
-						// 如果是锥面
-						ProVector vector1, vector2;
-						VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.cone.e1, vector1);
-						VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
-						double dAngle = CalArcCos(GetVectorCosAngle(vector1, vector2));
-						dAngle -= pdataNeighborSrf->data.p_surface_data->srf_shape.cone.alpha;
-						if (dAngle != 0)
-						{
-							dDistance = dDistance/sin(dAngle);
-						}
-					}
-					ProGeomitemdataFree(&pdataNeighborSrf);
-
-					/*ProModelitem itemEdgeNeighbor;
-					status =ProEdgeToGeomitem(ProMdlToSolid(pMdl), edgeNeighbors[nNeighbor], &itemEdgeNeighbor);
-					ProSelection selEdgeNeighbor;
-					status = ProSelectionAlloc(NULL, &itemEdgeNeighbor, &selEdgeNeighbor);
-					
-					status = ProGeomitemAngleEval(selEdgeNeighbor, selSrf, &dAngel);
-					if (dAngel != 0.0)
-						dDistance = dDistance/sin(dAngel);*/
-					nExtendCount ++;
-
-					ProSelection selExtendEdge;
-					status = ProSelectionAlloc(NULL, &arrItemExtendEdges[i], &selExtendEdge);
-					int nExtendID = ExtendSrfByEdge(pMdl, selExtendEdge, dDistance);
-					if (nExtendID > 0)
-					{
-						status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nExtendID);
-					}
-					else
-						break;
+					nNeighbor = 1;
 				}
+				else if (srfNeighbor[1] == NULL && srfNeighbor[0] != NULL)
+				{
+					nNeighbor = 0;
+				}
+				else
+					continue;
+
+				// 计算面的实际延展距离
+				double dRealDis = dDistance;
+				ProGeomitemdata* pdataNeighborSrf = NULL;
+				status =ProSurfaceDataGet(srfNeighbor[nNeighbor], &pdataNeighborSrf);
+				int nTypeNeighborSrf = pdataNeighborSrf->data.p_surface_data->type;
+				if (nTypeNeighborSrf == PRO_SRF_PLANE)
+				{
+					// 如果是平面，获取面的法矢
+					ProVector vector1, vector2;
+					VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.plane.e3, vector1);
+					VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
+					double dCosAngle = GetVectorCosAngle(vector1, vector2);
+					if (dCosAngle != 1)
+					{
+						dRealDis = dDistance/sqrt(1-dCosAngle*dCosAngle);
+					}
+				}
+				else if (nTypeNeighborSrf == PRO_SRF_CYL)
+				{
+					// 如果是圆柱面，获取面的法矢
+					ProVector vector1, vector2;
+					VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.cylinder.e1, vector1);
+					VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
+					double dCosAngle = GetVectorCosAngle(vector1, vector2);
+					if (dCosAngle != 1)
+					{
+						dRealDis = dDistance/sqrt(1-dCosAngle*dCosAngle);
+					}
+				}
+				else if (nTypeNeighborSrf == PRO_SRF_CONE)
+				{
+					// 如果是锥面
+					ProVector vector1, vector2;
+					VectorCopy(pdataNeighborSrf->data.p_surface_data->srf_shape.cone.e1, vector1);
+					VectorCopy(pdataBottomSrf->data.p_surface_data->srf_shape.plane.e3, vector2);
+					double dAngle = CalArcCos(GetVectorCosAngle(vector1, vector2));
+					dAngle -= pdataNeighborSrf->data.p_surface_data->srf_shape.cone.alpha;
+					if (dAngle != 0)
+					{
+						dRealDis = dDistance/sin(dAngle);
+					}
+				}
+				ProGeomitemdataFree(&pdataNeighborSrf);
+
+				/*ProModelitem itemEdgeNeighbor;
+				status =ProEdgeToGeomitem(ProMdlToSolid(pMdl), edgeNeighbors[nNeighbor], &itemEdgeNeighbor);
+				ProSelection selEdgeNeighbor;
+				status = ProSelectionAlloc(NULL, &itemEdgeNeighbor, &selEdgeNeighbor);
+				
+				status = ProGeomitemAngleEval(selEdgeNeighbor, selSrf, &dAngel);
+				if (dAngel != 0.0)
+					dDistance = dDistance/sin(dAngel);*/
+				nExtendCount ++;
+
+				ProSelection selExtendEdge;
+				status = ProSelectionAlloc(NULL, &arrItemExtendEdges[i], &selExtendEdge);
+				int nExtendID = ExtendSrfByEdge(pMdl, selExtendEdge, dRealDis);
+				if (nExtendID > 0)
+				{
+					status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nExtendID);
+				}
+				else
+					break;
 			}
 
 			// 创建组
 			int nFeatsCount;
 			status = ProArraySizeGet(pArrFeatIDs, &nFeatsCount);
-			if (nFeatsCount == (2+nExtendCount))
+			if (nFeatsCount == (1+nExtendCount))
 			{
 				ProGroup group;
 				status = ProLocalGroupCreate(ProMdlToSolid(pMdl), pArrFeatIDs, nFeatsCount, L"Extend", &group);
