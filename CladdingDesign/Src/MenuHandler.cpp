@@ -530,6 +530,10 @@ void OnOffsetGeneralActFn()
 			if (nOffsetID > 0)
 			{
 				SetSurfColor(itemQuilt, 255, 215, 0);
+				// 第5步：隐藏原包覆面
+				ProModelitem itemQuiltSel;
+				ProSelectionModelitemGet(arrSelSrf[0], &itemQuiltSel);
+				ProModelitemHide(&itemQuiltSel);
 			}
 			else
 			{
