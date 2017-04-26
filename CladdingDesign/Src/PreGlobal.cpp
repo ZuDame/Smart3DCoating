@@ -1051,11 +1051,11 @@ BOOL GetContourByEdge(/*input*/ProSelection selEdge, /*output*/vector<ProSelecti
 	{
 		arrContours.clear();
 		status = ProSurfaceContourVisit(surfNeighbour[i], SurfaceInnerContoursGetAction, NULL, &arrContours);
-		for (int j=0; j<arrContours.size(); j++)
+		for (int j=0; j<(int)arrContours.size(); j++)
 		{
 			arrEdges.clear();
 			status = ProContourEdgeVisit(surfNeighbour[i], arrContours[j], ContourEdgesGetAction, NULL, &arrEdges);
-			for (int k=0; k<arrEdges.size(); k++)
+			for (int k=0; k<(int)arrEdges.size(); k++)
 			{
 				// Èç¹ûÆ¥Åä
 				if (arrEdges[k] == edge[0])
@@ -1064,7 +1064,7 @@ BOOL GetContourByEdge(/*input*/ProSelection selEdge, /*output*/vector<ProSelecti
 					ProAsmcomppath compath;
 					status = ProSelectionAsmcomppathGet(selEdge, &compath);
 					ProModelitem itemEdgeTemp;
-					for (int m=0; m<arrEdges.size(); m++)
+					for (int m=0; m<(int)arrEdges.size(); m++)
 					{
 						status = ProEdgeToGeomitem(ProMdlToSolid(itemEdge.owner), arrEdges[m], &itemEdgeTemp);
 						ProSelection selEdgeTemp;
@@ -1226,7 +1226,7 @@ int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
 		status = ProCrvcollectionAlloc(&collect);
 		ProCrvcollinstr instCurv;
 		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_ADD_ONE_INSTR, &instCurv);
-		for (int i=0; i<arrSelEdges.size(); i++)
+		for (int i=0; i<(int)arrSelEdges.size(); i++)
 		{
 			ProReference refCurve;
 			status = ProSelectionToReference(arrSelEdges[i], &refCurve);
@@ -2142,7 +2142,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 	double dDistance = 0.0;
 	vector<ProSelection> arrSelQltSrfs;
 	int nSrfIndex = -1;
-	for (int i=0; i<arrQltSrfs.size(); i++)
+	for (int i=0; i<(int)arrQltSrfs.size(); i++)
 	{
 		double dDistanceTemp;
 		ProModelitem itemQltSrfTemp;
@@ -2171,7 +2171,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 		vector<ProEdge> arrTrimEdges;
 		status = ProContourEdgeVisit(arrQltSrfs[nSrfIndex], arrTrimContour[0], ContourEdgesGetAction, NULL, &arrTrimEdges);
 		vector<ProSelection> arrSelTrimEdges;
-		for (int i=0; i<arrTrimEdges.size(); i++)
+		for (int i=0; i<(int)arrTrimEdges.size(); i++)
 		{
 			ProModelitem itemTrimEdge;
 			status = ProEdgeToGeomitem(ProMdlToSolid(pMdl), arrTrimEdges[i], &itemTrimEdge);
@@ -2202,7 +2202,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 			featTrim.type = PRO_FEATURE;
 			vector<ProModelitem>arrItemExtendEdges;
 			status = ProFeatureGeomitemVisit(&featTrim, PRO_EDGE, FeatureGeomsGetAction, NULL, &arrItemExtendEdges);
-			for (int i=0; i<arrItemExtendEdges.size(); i++)
+			for (int i=0; i<(int)arrItemExtendEdges.size(); i++)
 			{
 				ProEdge edgeExtend;
 				status = ProGeomitemToEdge(&arrItemExtendEdges[i], &edgeExtend);

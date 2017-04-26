@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(ProjectDir)\PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -134,7 +134,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="x64;_WINDOWS;_DEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -189,7 +189,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(ProjectDir)\PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\PreSetting\Msg_eng.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\Msg.txt&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg_eng.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\Msg.txt&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -222,7 +222,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -311,7 +311,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="x64;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -399,7 +399,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -488,7 +488,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="x64;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5;PTA_CREO1"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -576,7 +576,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win32\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5;PTA_CREO2"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -665,7 +665,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\res&quot;;&quot;$(ProjectDir)\res\bmp&quot;;&quot;$(ProjectDir)\src&quot;;&quot;$(ProjectDir)\src\Office&quot;;&quot;$(ProjectDir)\src\Module&quot;;&quot;$(ProjectDir)\src\DialogUI&quot;;&quot;$(ProjectDir)\src\CustomControl&quot;;&quot;$(SolutionDir)\__Internal\Include&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)res&quot;;&quot;$(ProjectDir)res\bmp&quot;;&quot;$(ProjectDir)src&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\prodevelop\prodev_appls&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Include\Win64\Pro5\protoolkit\protk_appls&quot;"
 				PreprocessorDefinitions="x64;_WINDOWS;NDEBUG;_USRDLL;PRO_USE_VAR_ARGS;PTA_PROE5;PTA_CREO2"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
