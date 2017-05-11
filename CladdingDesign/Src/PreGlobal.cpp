@@ -805,7 +805,7 @@ int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*outpu
 				status = ProValueAlloc(&valueOrientDir);
 				status = ProValueDataSet(valueOrientDir, &valdataOrientDir);
 				status = ProElementValueSet(elemOrientDir, valueOrientDir);
-			
+
 				// PRO_E_STD_SEC_PLANE_ORIENT_REF
 				//ProElement elemOrientRef;
 				//ProElementAlloc(PRO_E_STD_SEC_PLANE_ORIENT_REF, &elemOrientRef);
@@ -865,7 +865,7 @@ int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*outpu
 			status = ProEdgeToGeomitem(ProMdlToSolid(itemSurf.owner), arrEdges[0], &itemEdgeTemp);
 			ProSelection refEdgeTemp;
 			status = ProSelectionAlloc(&compath, &itemEdgeTemp, &refEdgeTemp);
-			
+
 			int nIds;
 			ProIntlist id_list;
 			status = ProSectionEntityUseEdgeLoop(secSketch, selPlane, refEdgeTemp, &id_list, &nIds);
@@ -884,7 +884,7 @@ int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*outpu
 			{
 				status = ProSectionNameSet(secSketch, L"Section");
 				ProWSecerror errors;
-				status = ProSectionRegenerate(secSketch, &errors);
+				status = ProSecerrorAlloc(&errors);
 				status = ProSectionSolve(secSketch, &errors);
 				if (status == PRO_TK_NO_ERROR)
 				{
@@ -906,6 +906,7 @@ int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*outpu
 						nRet = feat.id;
 					}
 				}
+				ProSecerrorFree(&errors);
 			}
 		}
 		ProElempathFree(&elemPath);
@@ -973,7 +974,7 @@ int CreateSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*out
 					ProSelection selQuiltTemp;
 					status = ProSelectionAlloc(&compath, &itemQuilt, &selQuiltTemp);
 					arrSelQuilts.push_back(selQuiltTemp);
-					
+
 					// 将复制面进行合并
 					if (i != 0)
 					{
@@ -1463,7 +1464,7 @@ int ReverseTrimDirection(ProFeature feat)
 	}
 	status = ProElempathFree(&elempathMatSide);
 	status = ProFeatureElemtreeFree(&feat, elemRoot);
-	
+
 	return nRet;
 }
 
@@ -1669,11 +1670,11 @@ int OffsetSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*
 int OffsetSingleSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*/double dOffset)
 {
 	/*if (selQuilt->sel_type != SEL_3D_SRF_LIST)
-		return -1;*/
+	return -1;*/
 
 	ProUdfdata udfdata;
 	ProUdfdataAlloc(&udfdata);
-	
+
 	//// 获取面的环
 	//ProModelitem itemSurfSeled;
 	//ProSelectionModelitemGet(selSurf, &itemSurfSeled);
@@ -2162,7 +2163,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 			}
 		}
 	}
-	
+
 	if (nSrfIndex >= 0)
 	{
 		// 获取需要移除的面的全部边
@@ -2269,10 +2270,10 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 				status =ProEdgeToGeomitem(ProMdlToSolid(pMdl), edgeNeighbors[nNeighbor], &itemEdgeNeighbor);
 				ProSelection selEdgeNeighbor;
 				status = ProSelectionAlloc(NULL, &itemEdgeNeighbor, &selEdgeNeighbor);
-				
+
 				status = ProGeomitemAngleEval(selEdgeNeighbor, selSrf, &dAngel);
 				if (dAngel != 0.0)
-					dDistance = dDistance/sin(dAngel);*/
+				dDistance = dDistance/sin(dAngel);*/
 				nExtendCount ++;
 
 				ProSelection selExtendEdge;
