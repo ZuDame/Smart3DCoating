@@ -1,181 +1,181 @@
-CladdingDesign
-包覆设计助手
+Smart3DCoating
+Smart3DCoating
 #
 #
 CD_ShortCutMenu
-启动快捷菜单(&R)...
+Start Shortcut menu(&R)...
 #
 #
 CD_ShortCutMenu Operator
-启动快捷菜单
+Start Shortcut menu
 #
 #
 Show CD_ShortCutMenu Operator
-启动快捷菜单
+Start Shortcut menu
 #
 #
 CD_Clean
-清理表面(&C)...
+Clean(&C)...
 #
 #
 CD_Clean Operator
-清理表面凸起
+Clean
 #
 #
 Show CD_Clean Operator
-清理表面凸起
+Clean
 #
 #
 CD_Create
-创建包覆面(&D)
+Create Surface(&D)
 #
 #
 CD_Create Operator
-创建包覆面
+Create Surface
 #
 #
 CD_RapidCreate
-快速创建(&R)...
+Rapid Create(&R)...
 #
 #
 CD_RapidCreate Operator
-快速创建
+Rapid Create
 #
 #
 Show CD_RapidCreate Operator
-快速创建
+Rapid Create
 #
 #
 CD_CreateUseSrf
-从几何面创建(&S)...
+Create use Surface(&S)...
 #
 #
 CD_CreateUseSrf Operator
-从几何面创建
+Create use Surface
 #
 #
 Show CD_CreateUseSrf Operator
-从几何面创建
+Create use Surface
 #
 #
 CD_CreateUseEdge
-从边界创建(&E)...
+Create use Edges(&E)...
 #
 #
 CD_CreateUseEdge Operator
-从边界创建
+Create use Edges
 #
 #
 Show CD_CreateUseEdge Operator
-从边界创建
+Create use Edges
 #
 #
 CD_Trim
-裁剪(&T)...
+Trim(&T)...
 #
 #
 CD_Trim Operator
-裁剪包覆面
+Trim
 #
 #
 Show CD_Trim Operator
-裁剪包覆面
+Trim
 #
 #
 CD_Merge
-拼接(&M)...
+Merge(&M)...
 #
 #
 CD_Merge Operator
-拼接包覆面
+Merge
 #
 #
 Show CD_Merge Operator
-拼接包覆面
+Merge
 #
 #
 CD_Offset
-放量(&O)
+Offset(&O)
 #
 #
 CD_Offset Operator
-放量
+Offset
 #
 #
 CD_OffsetGeneral
-整体放量(&G)...
+Offset General(&G)...
 #
 #
 CD_OffsetGeneral Operator
-将包覆面偏离一段距离
+Offset General
 #
 #
 Show CD_OffsetGeneral Operator
-将包覆面偏离一段距离
+Offset General
 #
 #
 CD_OffsetSingle
-单侧放量(&S)...
+Offset Single(&S)...
 #
 #
 CD_OffsetSingle Operator
-将包覆面向一侧偏离一段距离
+Offset Single
 #
 #
 Show CD_OffsetSingle Operator
-将包覆面向一侧偏离一段距离
+Offset Single
 #
 #
 CD_Bottom
-底面平齐(&B)
+Bottom parallel(&B)
 #
 #
 CD_Bottom Operator
-确保包覆面集与模型底面平齐
+Bottom parallel
 #
 #
 CD_BottomCut
-切除平齐(&C)...
+Bottom Cut(&C)...
 #
 #
 CD_BottomCut Operator
-向外放量时通过切除确保包覆面集与模型底面平齐
+Cut Cladding to keep parallel
 #
 #
 Show CD_BottomCut Operator
-向外放量时通过切除确保包覆面集与模型底面平齐
+Cut Cladding to keep parallel
 #
 #
 CD_BottomExpand
-延伸平齐(&E)...
+Bottom Expand(&E)...
 #
 #
 CD_BottomExpand Operator
-向内放量时通过延伸确保包覆面集与模型底面平齐
+Expand Cladding to keep parallel
 #
 #
 Show CD_BottomExpand Operator
-向内放量时通过延伸确保包覆面集与模型底面平齐
+Expand Cladding to keep parallel
 #
 #
 CD_Export
-导出STL(&S)...
+Export STL(&S)...
 #
 #
 CD_Export Operator
-导出到STL文件
+Export STL
 #
 #
 Show CD_Export Operator
-导出到STL文件
+Export STL
 #
 #
-About_CladdingDesign Operator
-关于
+About_Smart3DCoating Operator
+About
 #
 #
-Show About_CladdingDesign Operator
-显示关于信息
+Show About_Smart3DCoating Operator
+Show About Tips
 #
 #
 Prompt %0w

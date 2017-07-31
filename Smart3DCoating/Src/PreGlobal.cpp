@@ -8,7 +8,7 @@
 //===================================================================================================
 
 #include "stdafx.h"
-#include "CladdingDesign.h"
+#include "Smart3DCoating.h"
 #include "PreGlobal.h"
 #include "Math.h"
 

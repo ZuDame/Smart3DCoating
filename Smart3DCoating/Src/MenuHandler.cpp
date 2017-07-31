@@ -1,6 +1,6 @@
 //===================================================================================================
 // Summary:
-//		CladdingDesign的菜单以及命令响应函数
+//		Smart3DCoating的菜单以及命令响应函数
 // Date:
 //		2016-02-20
 // Author:
@@ -8,7 +8,7 @@
 //===================================================================================================
 
 #include "stdafx.h"
-#include "CladdingDesign.h"
+#include "Smart3DCoating.h"
 #include "MenuHandler.h"
 #include "PreGlobal.h"
 #include "DlgConfirm.h"
@@ -69,35 +69,35 @@ BOOL CMenuHandler::Init()
 {
 	ProFileName Msg = L"Msg.txt";
 
-	char szCladdingDesignMenuName[] = "CladdingDesignMenuName";
-	ProMenubarMenuAdd(szCladdingDesignMenuName, "CladdingDesign", "Utilities", PRO_B_TRUE, Msg);
+	char szSmart3DCoatingMenuName[] = "Smart3DCoatingMenuName";
+	ProMenubarMenuAdd(szSmart3DCoatingMenuName, "Smart3DCoating", "Utilities", PRO_B_TRUE, Msg);
 
-	AddMenuItem(szCladdingDesignMenuName, "CD_ShortCutMenu", ShowShortCutMenu, UserAccessDefault, Msg);
-	AddMenuItem(szCladdingDesignMenuName, "CD_Clean", OnCleanActFn, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_ShortCutMenu", ShowShortCutMenu, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Clean", OnCleanActFn, UserAccessDefault, Msg);
 
-	char szCreateChildMenuName[] = "CladdingDesignCreateMenuName";
-	ProMenubarmenuMenuAdd(szCladdingDesignMenuName, szCreateChildMenuName, "CD_Create", NULL, PRO_B_TRUE, Msg);
+	char szCreateChildMenuName[] = "Smart3DCoatingCreateMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szCreateChildMenuName, "CD_Create", NULL, PRO_B_TRUE, Msg);
 	{
 		AddMenuItem(szCreateChildMenuName, "CD_RapidCreate", OnRapidCreatActFn, UserAccessDefault, Msg);
 		AddMenuItem(szCreateChildMenuName, "CD_CreateUseEdge", OnCreateByEdgeActFn, UserAccessDefault, Msg);
 	}
-	AddMenuItem(szCladdingDesignMenuName, "CD_Trim", OnTrimActFn, UserAccessDefault, Msg);
-	AddMenuItem(szCladdingDesignMenuName, "CD_Merge", OnMergeActFn, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Trim", OnTrimActFn, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Merge", OnMergeActFn, UserAccessDefault, Msg);
 
-	char szOffsetChildMenuName[] = "CladdingDesignOffsetMenuName";
-	ProMenubarmenuMenuAdd(szCladdingDesignMenuName, szOffsetChildMenuName, "CD_Offset", NULL, PRO_B_TRUE, Msg);
+	char szOffsetChildMenuName[] = "Smart3DCoatingOffsetMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szOffsetChildMenuName, "CD_Offset", NULL, PRO_B_TRUE, Msg);
 	{
 		AddMenuItem(szOffsetChildMenuName, "CD_OffsetGeneral", OnOffsetGeneralActFn, UserAccessDefault, Msg);
 		AddMenuItem(szOffsetChildMenuName, "CD_OffsetSingle", OnOffsetSingleActFn, UserAccessDefault, Msg);
 	}
 
-	char szBottomChildMenuName[] = "CladdingDesignBottomMenuName";
-	ProMenubarmenuMenuAdd(szCladdingDesignMenuName, szBottomChildMenuName, "CD_Bottom", NULL, PRO_B_TRUE, Msg);
+	char szBottomChildMenuName[] = "Smart3DCoatingBottomMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szBottomChildMenuName, "CD_Bottom", NULL, PRO_B_TRUE, Msg);
 	{
 		AddMenuItem(szBottomChildMenuName, "CD_BottomCut", OnBottomCutActFn, UserAccessDefault, Msg);
 		AddMenuItem(szBottomChildMenuName, "CD_BottomExpand", OnBottomExpandActFn, UserAccessDefault, Msg);
 	}
-	AddMenuItem(szCladdingDesignMenuName, "CD_Export", OnExportActFn, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Export", OnExportActFn, UserAccessDefault, Msg);
 
 
 	// 初始化快捷菜单
@@ -108,7 +108,7 @@ BOOL CMenuHandler::Init()
 	ProMenufileName MnuExport = "ShortCut_Export.mnu";
 
 	// 注册菜单文件
-	char szMnuName[] = "CladdingDesign_ShortCut";
+	char szMnuName[] = "Smart3DCoating_ShortCut";
 	char szMnuNameCreate[] = "CD_Create";
 	char szMnuNameEdit[] = "CD_Edit";
 	char szMnuNameExport[] = "CD_Export";
@@ -183,7 +183,7 @@ void DeleteOperator()
 // 显示快捷菜单
 void ShowShortCutMenu()
 {
-	static char *compoundmenu[] = {"CladdingDesign_ShortCut", "CD_Create", "CD_Edit", "CD_Export", ""};
+	static char *compoundmenu[] = {"Smart3DCoating_ShortCut", "CD_Create", "CD_Edit", "CD_Export", ""};
 	int nMenuid;
 	ProError status =ProCompoundmenuCreate(compoundmenu, &nMenuid);
 	if (status == PRO_TK_NO_ERROR)

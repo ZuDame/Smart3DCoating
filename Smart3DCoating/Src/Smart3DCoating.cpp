@@ -1,6 +1,6 @@
 //===================================================================================================
 // Summary:
-//		CladdingDesign的入口函数
+//		Smart3DCoating的入口函数
 // Date:
 //		2017-02-20
 // Author:
@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #include "MenuHandler.h"
 #include "Global.h"
-#include "CladdingDesign.h"
+#include "Smart3DCoating.h"
 
 //===================================================================================================
 
@@ -20,14 +20,14 @@
 
 //===================================================================================================
 
-CCladdingDesignApp theApp;
+CSmart3DCoatingApp theApp;
 CMenuHandler *g_pMenuHandler = NULL;
 ULONG_PTR g_gdiplusToken = 0;
 BOOL g_bSelectDlgOpen = FALSE;
 
 //===================================================================================================
 
-BEGIN_MESSAGE_MAP(CCladdingDesignApp, CWinApp)
+BEGIN_MESSAGE_MAP(CSmart3DCoatingApp, CWinApp)
 END_MESSAGE_MAP()
 
 //===================================================================================================
@@ -76,18 +76,18 @@ extern "C" void user_terminate()
 
 //===================================================================================================
 
-CCladdingDesignApp::CCladdingDesignApp()
+CSmart3DCoatingApp::CSmart3DCoatingApp()
 {
 }
 
-BOOL CCladdingDesignApp::InitInstance()
+BOOL CSmart3DCoatingApp::InitInstance()
 {
 	CWinApp::InitInstance();
 	GetMainModulePath((HMODULE)this->m_hInstance, m_strAppPath);
 	return TRUE;
 }
 
-BOOL CCladdingDesignApp::ExitInstance()
+BOOL CSmart3DCoatingApp::ExitInstance()
 {
 	return CWinApp::ExitInstance();
 }

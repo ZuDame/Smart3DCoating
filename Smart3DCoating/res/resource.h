@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by CladdingDesign.rc
+// Used by Smart3DCoating.rc
 //
 #define IDR_MENU_FEATURERENAME          162
 #define IDD_DLG_CONFIRM                 164

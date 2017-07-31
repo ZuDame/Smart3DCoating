@@ -1,14 +1,14 @@
 //===================================================================================================
 // Summary:
-//		CladdingDesign的入口函数
+//		Smart3DCoating的入口函数
 // Date:
 //		2017-02-20
 // Author:
 //		ZhouXuan(zhouxuan_joe@163.com)
 //===================================================================================================
 
-#ifndef __CladdingDesignApp_h__
-#define __CladdingDesignApp_h__
+#ifndef __Smart3DCoatingApp_h__
+#define __Smart3DCoatingApp_h__
 
 //===================================================================================================
 
@@ -22,10 +22,10 @@
 
 //===================================================================================================
 
-class CCladdingDesignApp : public CWinApp
+class CSmart3DCoatingApp : public CWinApp
 {
 public:
-	CCladdingDesignApp();
+	CSmart3DCoatingApp();
 
 	CString m_strAppPath;
 
@@ -39,7 +39,7 @@ private:
 
 //===================================================================================================
 
-extern CCladdingDesignApp theApp;
+extern CSmart3DCoatingApp theApp;
 extern BOOL g_bSelectDlgOpen;
 
 //===================================================================================================

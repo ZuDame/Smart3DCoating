@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="CladdingDesign"
+	Name="Smart3DCoating"
 	ProjectGUID="{90678416-3FD2-49DC-8C0C-63F0CFB83054}"
 	RootNamespace="StdLibrary"
 	Keyword="MFCDLLProj"
@@ -75,7 +75,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -162,7 +162,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -189,7 +189,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg_eng.txt&quot; &quot;C:\PreStart\CladdingDesign\Text\usascii\Msg.txt&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg_eng.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\Msg.txt&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)__Internal\exe\DeviceCom.exe&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -248,7 +248,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -277,7 +277,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -337,7 +337,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -366,7 +366,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y"
 			/>
 		</Configuration>
 		<Configuration
@@ -425,7 +425,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win32_Creo1.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -454,7 +454,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_Creo1.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_Creo1.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y"
 			/>
 		</Configuration>
 		<Configuration
@@ -514,7 +514,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win64_Creo1.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -543,7 +543,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_Creo1.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_Creo1.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y"
 			/>
 		</Configuration>
 		<Configuration
@@ -602,7 +602,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win32_Creo2.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win32\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -631,7 +631,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_Creo2.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win32_Creo2.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y"
 			/>
 		</Configuration>
 		<Configuration
@@ -691,7 +691,7 @@
 				OutputFile="$(OutDir)\Bin\$(ProjectName)_Win64_Creo2.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)\__Internal\Libs&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\prodevelop&quot;;&quot;$(SolutionDir)\..\..\ProE SDK\Libs\Win64\Pro5\protoolkit&quot;"
-				ModuleDefinitionFile=".\Src\CladdingDesign.def"
+				ModuleDefinitionFile=".\Src\Smart3DCoating.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)Symbol\$(ProjectName).pdb"
 				SubSystem="2"
@@ -720,7 +720,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_Creo2.dll&quot; &quot;C:\PreStart\CladdingDesign\&quot; /D /E /Q /R /Y"
+				CommandLine="xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_Creo2.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y"
 			/>
 		</Configuration>
 	</Configurations>
@@ -767,18 +767,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Src\CladdingDesign.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Src\CladdingDesign.def"
-				>
-			</File>
-			<File
-				RelativePath=".\Src\CladdingDesign.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Src\ConstantValue.h"
 				>
 			</File>
@@ -812,6 +800,18 @@
 			</File>
 			<File
 				RelativePath=".\Src\PreGlobal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Src\Smart3DCoating.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Src\Smart3DCoating.def"
+				>
+			</File>
+			<File
+				RelativePath=".\Src\Smart3DCoating.h"
 				>
 			</File>
 			<File
@@ -979,19 +979,19 @@
 			Name="Res"
 			>
 			<File
-				RelativePath=".\res\CladdingDesign.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\res\CladdingDesign.rc2"
-				>
-			</File>
-			<File
 				RelativePath="..\__Internal\exe\DeviceCom.exe"
 				>
 			</File>
 			<File
 				RelativePath=".\res\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Smart3DCoating.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Smart3DCoating.rc2"
 				>
 			</File>
 			<File
@@ -1015,7 +1015,7 @@
 	<Globals>
 		<Global
 			Name="RESOURCE_FILE"
-			Value="Res\CladdingDesign.rc"
+			Value="Res\Smart3DCoating.rc"
 		/>
 	</Globals>
 </VisualStudioProject>

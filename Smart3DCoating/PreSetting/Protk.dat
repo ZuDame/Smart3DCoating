@@ -1,0 +1,7 @@
+Name      Smart3DCoating
+Startup   DLL
+Exec_file C:\PreStart\Smart3DCoating\Smart3DCoating_Win64_ProE5.dll
+Text_dir  C:\PreStart\Smart3DCoating\Text
+allow_stop true
+Revision  18
+End

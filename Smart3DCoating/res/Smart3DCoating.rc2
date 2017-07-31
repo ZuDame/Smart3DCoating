@@ -1,5 +1,5 @@
 //
-// CladdingDesign.RC2 - resources Microsoft Visual C++ does not edit directly
+// Smart3DCoating.RC2 - resources Microsoft Visual C++ does not edit directly
 //
 
 #ifdef APSTUDIO_INVOKED
@@ -37,12 +37,12 @@ BEGIN
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "Proe二次开发功能测试\0"
             VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "CladdingDesign\0"       
+            VALUE "InternalName", "Smart3DCoating\0"       
 			VALUE "LegalCopyright", ""
             VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "CladdingDesign.dll\0"
+            VALUE "OriginalFilename", "Smart3DCoating.dll\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "CladdingDesign\0"
+            VALUE "ProductName", "Smart3DCoating\0"
             VALUE "ProductVersion", STRPRODUCTVER
             VALUE "SpecialBuild", "\0"
         END

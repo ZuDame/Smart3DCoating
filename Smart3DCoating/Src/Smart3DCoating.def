@@ -1,0 +1,6 @@
+; Smart3DCoating.def : Declares the module parameters for the DLL.
+
+LIBRARY      "Smart3DCoating"
+
+EXPORTS
+    ; Explicit exports can go here

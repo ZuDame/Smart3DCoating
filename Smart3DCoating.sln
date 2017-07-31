@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CladdingDesign", "CladdingDesign\CladdingDesign.vcproj", "{90678416-3FD2-49DC-8C0C-63F0CFB83054}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Smart3DCoating", "Smart3DCoating\Smart3DCoating.vcproj", "{90678416-3FD2-49DC-8C0C-63F0CFB83054}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
