@@ -2,6 +2,16 @@
 // Microsoft Visual C++ generated include file.
 // Used by Smart3DCoating.rc
 //
+
+#define IDD_DLG_SERVER                  103
+#define IDC_SERVER_PORT                 104
+#define IDC_IPA_SERVERIP                106
+#define IDC_IPA_SERVERIP2               107
+#define IDC_CLIENT_PORT                 108
+#define IDC_CHECK_AUTO                  109
+#define IDB_ABOUT                       110
+#define IDD_ABOUTBOX                    111
+
 #define IDR_MENU_FEATURERENAME          162
 #define IDD_DLG_CONFIRM                 164
 #define IDCANCLE                        1271

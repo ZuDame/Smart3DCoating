@@ -20,6 +20,16 @@
 
 //===================================================================================================
 
+// 激活当前窗口
+ProError ActivateCurrentPreWindow()
+{
+	int window_id;
+	ProError status = ProWindowCurrentGet(&window_id);
+	if (status == PRO_TK_NO_ERROR)
+		status = ProWindowActivate(window_id);
+	return status;
+}
+
 // 刷新当前窗口
 void InvalidateDrawing()
 {
@@ -603,7 +613,7 @@ int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf,
 		return ER_BAD_INPUT;
 
 	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\copysrf.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\copysrf.gph";
 	if (IsFileExist(strUDFPath))
 	{
 		ProUdfdata udfdata;
@@ -660,7 +670,7 @@ int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf,
 		return ER_BAD_INPUT;
 
 	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\copysrf_fill.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\copysrf_fill.gph";
 	if (IsFileExist(strUDFPath))
 	{
 		ProUdfdata udfdata;
@@ -1480,7 +1490,7 @@ int CreateBlendSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*inpu
 		return ER_BAD_INPUT;
 
 	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\blendsrf.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\blendsrf.gph";
 	if (IsFileExist(strUDFPath))
 	{
 		ProUdfdata udfdata;
@@ -1615,7 +1625,7 @@ int OffsetSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*
 		return ER_BAD_INPUT;
 
 	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\offsetsrf.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\offsetsrf.gph";
 	if (IsFileExist(strUDFPath))
 	{
 		ProUdfdata udfdata;
@@ -1699,7 +1709,7 @@ int OffsetSingleSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*
 
 	ProError status;
 	// 设置文件路径
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\offsetpack.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\offsetpack.gph";
 	ProPath pathUDF;
 	wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
 	if (!IsFileExist(strUDFPath))
@@ -1827,7 +1837,7 @@ int CreateProjectCurve(ProMdl pMdl, ProSelection selQuilt, ProSelection selEdge)
 	ProUdfdataAlloc(&udfdata);
 
 	// 设置文件路径
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\projectcurve.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\projectcurve.gph";
 	ProPath pathUDF;
 	wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
 	if (!IsFileExist(strUDFPath))
@@ -2057,7 +2067,7 @@ int ExtendSrfByEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge, /*input
 	status = ProSelectionAlloc(NULL, &itemVertex, &selVertex);
 
 	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"Resource\\extendbyedge.gph";
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\extendbyedge.gph";
 	if (IsFileExist(strUDFPath))
 	{
 		ProUdfdata udfdata;

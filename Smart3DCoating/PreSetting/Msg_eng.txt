@@ -170,11 +170,58 @@ Show CD_Export Operator
 Export STL
 #
 #
-About_Smart3DCoating Operator
-About
+CD_LicenseServer
+许可证服务器(&V)
 #
 #
-Show About_Smart3DCoating Operator
+CD_ConnectServer
+连接(&C)...
+#
+#
+CD_ConnectServer Operator
+连接许可证服务器
+#
+#
+Show CD_ConnectServer Operator
+连接许可证服务器操作
+#
+#
+CD_DisconnectServer
+断开(&D)
+#
+#
+CD_DisconnectServer Operator
+断开许可证服务器
+#
+#
+Show CD_DisconnectServer Operator
+断开许可证服务器操作
+#
+#
+CD_Help
+帮助(&H)
+#
+#
+CD_Help Operator
+打开帮助文档
+#
+#
+Show CD_Help Operator
+打开帮助文档操作
+#
+#
+CD_About
+关于包覆设计系统(&A)...
+#
+#
+CD_About Operator
+关于包覆设计系统
+#
+#
+Show CD_About Operator
+关于包覆设计系统
+#
+#
 Show About Tips
 #
 #

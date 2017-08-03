@@ -40,7 +40,16 @@ extern "C" int user_initialize()
 	if (!AfxInitRichEdit())
 		return -1;
 
+	// 初始化通信端口
+	if (!AfxSocketInit())
+		return -1;
+
 	CoInitialize(NULL);
+
+	// 初始化授权文件
+	CString strMainPath;
+	GetMainModulePath(strMainPath, (HMODULE)theApp.m_hInstance);
+	LicenseInit(strMainPath, PT_3DCOATING);
 
 	if (g_pMenuHandler == NULL)
 	{
@@ -51,12 +60,26 @@ extern "C" int user_initialize()
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&g_gdiplusToken, &gdiplusStartupInput, NULL);
 
+	// 从注册表中读取选项信息
+	ReadOptionInfo();
+
+	// 自动连接服务器
+	if (g_bAutoConServer)
+	{
+		SClientInfo clientInfo;
+		LoadServerData(clientInfo);
+		ConSmartServer(TRUE, clientInfo);
+	}
+
 	return 0;
 }
 
 extern "C" void user_terminate()
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// 关闭网络连接
+	UnLicenseInit();
 
 	DestroyAllDialog();
 
@@ -83,7 +106,7 @@ CSmart3DCoatingApp::CSmart3DCoatingApp()
 BOOL CSmart3DCoatingApp::InitInstance()
 {
 	CWinApp::InitInstance();
-	GetMainModulePath((HMODULE)this->m_hInstance, m_strAppPath);
+	GetMainModulePath(m_strAppPath, (HMODULE)this->m_hInstance);
 	return TRUE;
 }
 

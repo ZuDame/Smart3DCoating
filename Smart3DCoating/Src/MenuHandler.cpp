@@ -13,6 +13,9 @@
 #include "PreGlobal.h"
 #include "DlgConfirm.h"
 
+#include "DlgAbout.h"
+#include "DlgConServer.h"
+
 //===================================================================================================
 
 #ifdef _DEBUG
@@ -20,6 +23,32 @@
 #endif
 
 //===================================================================================================
+
+uiCmdAccessState ConServerAccessDefault(uiCmdAccessMode access_mode)
+{
+	access_mode;
+	// 存在单机版授权，不需要连接服务器
+	if (GetSingleLicense())
+		return ACCESS_UNAVAILABLE;
+
+	return ACCESS_AVAILABLE;
+}
+
+uiCmdAccessState DisConServerAccessDefault(uiCmdAccessMode access_mode)
+{
+	access_mode;
+	// 存在单机版授权，不需要连接服务器
+	if (GetSingleLicense())
+		return ACCESS_UNAVAILABLE;
+
+	return ACCESS_AVAILABLE;
+}
+
+uiCmdAccessState MainAccessAvailable(uiCmdAccessMode access_mode)
+{
+	access_mode;
+	return ACCESS_AVAILABLE;
+}
 
 uiCmdAccessState UserAccessDefault(uiCmdAccessMode access_mode)
 {
@@ -67,7 +96,7 @@ void AddMenuItem(char *menuName, char *itemName, actionFunc menuitemAction, acce
 // 初始化菜单
 BOOL CMenuHandler::Init()
 {
-	ProFileName Msg = L"Msg.txt";
+	ProFileName Msg = L"Msg_Smart3DCoating.txt";
 
 	char szSmart3DCoatingMenuName[] = "Smart3DCoatingMenuName";
 	ProMenubarMenuAdd(szSmart3DCoatingMenuName, "Smart3DCoating", "Utilities", PRO_B_TRUE, Msg);
@@ -99,6 +128,21 @@ BOOL CMenuHandler::Init()
 	}
 	AddMenuItem(szSmart3DCoatingMenuName, "CD_Export", OnExportActFn, UserAccessDefault, Msg);
 
+
+	// 许可证服务器
+	char szLicenseServerChildMenuName[] = "CD_LicServerMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szLicenseServerChildMenuName, "CD_LicenseServer", NULL, PRO_B_TRUE, Msg);
+	{
+		// 连接
+		AddMenuItem(szLicenseServerChildMenuName, "CD_ConnectServer", ConServerActFn, ConServerAccessDefault, Msg);
+		// 断开
+		AddMenuItem(szLicenseServerChildMenuName, "CD_DisconnectServer", DisConServerActFn, DisConServerAccessDefault, Msg);
+	}
+
+	// 帮助
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Help", OnHelp, MainAccessAvailable, Msg);
+	// 关于
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_About", OnAbout, MainAccessAvailable, Msg);
 
 	// 初始化快捷菜单
 	int menuid, menuid_create, menuid_edit, menuid_export;
@@ -183,6 +227,9 @@ void DeleteOperator()
 // 显示快捷菜单
 void ShowShortCutMenu()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	static char *compoundmenu[] = {"Smart3DCoating_ShortCut", "CD_Create", "CD_Edit", "CD_Export", ""};
 	int nMenuid;
 	ProError status =ProCompoundmenuCreate(compoundmenu, &nMenuid);
@@ -195,6 +242,9 @@ void ShowShortCutMenu()
 // 退出快捷菜单
 void OnMenuQuit()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	int nWnd;
 	if (ProWindowCurrentGet(&nWnd) == PRO_TK_NO_ERROR)
 	{
@@ -206,6 +256,9 @@ void OnMenuQuit()
 // 表面清理
 void OnCleanActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -263,6 +316,9 @@ void OnCleanActFn()
 // 快速创建包覆面
 void OnRapidCreatActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -306,6 +362,9 @@ void OnRapidCreatActFn()
 // 从边界创建
 void OnCreateByEdgeActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -345,6 +404,9 @@ void OnCreateByEdgeActFn()
 // 裁剪面
 void OnTrimActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -470,6 +532,9 @@ void OnTrimActFn()
 // 拼接包覆面
 void OnMergeActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -501,6 +566,9 @@ void OnMergeActFn()
 // 整体放量
 void OnOffsetGeneralActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -548,6 +616,9 @@ void OnOffsetGeneralActFn()
 // 单侧放量
 void OnOffsetSingleActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -603,6 +674,9 @@ void OnOffsetSingleActFn()
 // 导出
 void OnExportActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -657,6 +731,9 @@ void OnExportActFn()
 // 底面切除
 void OnBottomCutActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -737,6 +814,9 @@ void OnBottomCutActFn()
 // 底面延伸
 void OnBottomExpandActFn()
 {
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
 	CancelSelectDialog();
@@ -770,4 +850,64 @@ void OnBottomExpandActFn()
 	}
 	InvalidateDrawing();
 	ProMessageClear();
+}
+
+
+// 网络连接的响应函数
+void ConServerActFn()
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+
+	// 如果服务器连接，校验是否正确即可。
+	CDlgConServer serverDlg;
+	SClientInfo clientInfo;
+	LoadServerData(clientInfo);
+	serverDlg.m_clientInfo = clientInfo;
+	if (serverDlg.DoModal() == IDCANCEL)
+	{
+		ProWindowRepaint(PRO_VALUE_UNUSED);
+		return;
+	}
+
+	ProWindowRepaint(PRO_VALUE_UNUSED);
+
+	// 重新设置服务器的信息
+	ConSmartServer(FALSE, serverDlg.m_clientInfo);
+}
+
+// 网络断开的响应函数
+void DisConServerActFn()
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+
+	// 断开服务器
+	DisConSmartServer(FALSE);
+}
+
+// 帮助
+void OnHelp()
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+
+	CString strMainModulePath;
+	GetMainModulePath(strMainModulePath, (HMODULE)theApp.m_hInstance);
+	if (strMainModulePath.IsEmpty())
+		return;
+
+	CString strHelpFileName = strMainModulePath + L"\\Help\\Smart3DCoating.pdf";
+	ShellExecute(NULL, TEXT("open"), strHelpFileName, NULL, NULL, SW_SHOW);
+}
+
+// 关于...
+void OnAbout()
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
+	ProWindowRepaint(PRO_VALUE_UNUSED);
 }

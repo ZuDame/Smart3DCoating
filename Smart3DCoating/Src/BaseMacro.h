@@ -12,30 +12,6 @@
 
 //===================================================================================================
 
-// 删除指针
-#define SAFE_DELETE_POINTER(p) \
-{ \
-	if (NULL != p) \
-	delete p; \
-	p = NULL; \
-}
-
-// 删除数组
-#define SAFE_DELETE_ARRAY(p) \
-{ \
-	if (NULL != p) \
-	delete[] p; \
-	p = NULL; \
-}
-
-// 删除资源句柄
-#define SAFE_CLOSE_HANDLE(handle)	\
-{ \
-	if (handle)	\
-	::CloseHandle(handle); \
-	handle = NULL; \
-}
-
 // 删除选择对象
 #define SAFE_DELETE_SELECTION(p) \
 { \
@@ -52,10 +28,11 @@
 	p = NULL; \
 }
 
+//===================================================================================================
+
 #define DFE_DELTA 0.001
 #define DFE_ZERO 0.000001
 #define DEQUAL(x, y) (fabs((x) - (y)) <= DFE_ZERO)
-#define ISNEAR(x, y) (fabs((x) - (y)) <= DFE_DELTA)
 
 // 圆周率
 #define DOCTOR_PI 3.14159265359

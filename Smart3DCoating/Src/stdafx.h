@@ -66,6 +66,10 @@ using namespace std;
 #include "gdiplus.h"
 using namespace Gdiplus;
 
+#include "SmartLicense.h"
+#include "SVGlobalTools.h"
+#include "SVCLGlobalMFC.h"
+
 #include <ProWindows.h>
 #include <ProMenu.h>
 #include <ProMenuBar.h>

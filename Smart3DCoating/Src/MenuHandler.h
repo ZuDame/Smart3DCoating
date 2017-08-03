@@ -86,6 +86,15 @@ void ShowShortCutMenu();
 // 退出快捷菜单
 void OnMenuQuit();
 
+// 网络连接的响应函数
+void ConServerActFn();
+// 网络断开的响应函数
+void DisConServerActFn();
+// 帮助
+void OnHelp();
+// 关于...
+void OnAbout();
+
 //===================================================================================================
 
 #endif

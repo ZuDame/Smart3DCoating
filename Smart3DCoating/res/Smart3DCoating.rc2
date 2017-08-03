@@ -35,7 +35,7 @@ BEGIN
         BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "Proe二次开发功能测试\0"
+            VALUE "FileDescription", "包覆设计\0"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "Smart3DCoating\0"       
 			VALUE "LegalCopyright", ""
