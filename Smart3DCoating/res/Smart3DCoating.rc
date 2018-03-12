@@ -62,6 +62,7 @@ END
 //
 // Bitmap
 //
+
 IDB_ABOUT               BITMAP                  "bmp\\About.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -108,6 +109,31 @@ BEGIN
     PUSHBUTTON      "反向",IDRETRY,120,36,50,14
 END
 
+IDD_DLG_SETTHICK DIALOGEX 0, 0, 165, 275
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "包覆体厚度设置"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LISTBOX         IDC_LIST_SURF,7,7,151,238,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "窗口选择",IDC_BTN_SEL,6,254,45,14
+    DEFPUSHBUTTON   "确定",IDOK,67,254,45,14
+    PUSHBUTTON      "取消",IDCANCEL,113,254,45,14
+END
+
+IDD_DLG_MERGEDIR DIALOGEX 0, 0, 93, 90
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "修改合并方向"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,8,66,35,17
+    CONTROL         "反向",IDC_CHECK_FIRST,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,55,9,26,21
+    CONTROL         "反向",IDC_CHECK_SECOND,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,55,34,26,21
+    LTEXT           "第一个面：",IDC_STATIC,11,15,41,8
+    LTEXT           "第二个面：",IDC_STATIC,12,40,41,8
+    GROUPBOX        "",IDC_STATIC,7,1,79,58
+    PUSHBUTTON      "重选",IDCANCEL,48,66,35,17
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -124,14 +150,24 @@ BEGIN
         TOPMARGIN, 5
         BOTTOMMARGIN, 50
     END
+
+    IDD_DLG_SETTHICK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 158
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 268
+    END
+
+    IDD_DLG_MERGEDIR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 86
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 83
+    END
 END
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
 
 #endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////

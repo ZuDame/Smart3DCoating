@@ -60,6 +60,10 @@
 #include <ProDtmPln.h>
 #include <ProLayer.h>
 #include <ProAsmcomp.h>
+#include <ProDtmCrv.h>
+#include <ProThicken.h>
+#include <pd_prototype.h>
+#include <ProDataShareFeat.h>
 
 //===================================================================================================
 
@@ -146,7 +150,7 @@ BOOL CreateFeature(/*input*/ProMdl pMdl, /*input*/ProElement elemRoot, /*output*
 int CreateDatumPlane(/*input*/ProMdl pMdl, /*input*/ProSelection selSrf, /*output*/ProModelitem& itemPlane);
 
 // 创建实体化特征
-int CreateSolidify(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*input*/int nSide = PRO_SOLIDIFY_SIDE_ONE);
+int CreateSolidify(/*input*/ProMdl pMdl, /*input*/ProSelection selQuiltOrPlane, /*input*/int nSide = PRO_SOLIDIFY_SIDE_ONE);
 
 // 创建包覆面
 int CreateSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*output*/ProModelitem& itemQlt);
@@ -165,6 +169,10 @@ BOOL GetContourByEdge(/*input*/ProSelection selEdge, /*output*/vector<ProSelecti
 int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
 				/*input*/vector<ProSelection> arrSelEdges, /*input*/int nTrimDir);
 
+// 通过一条封闭曲线修剪面
+int TrimSurfaceByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
+				/*input*/ProSelection selCurve, /*input*/int nTrimDir);
+
 // 通过面组或基准面修剪面
 int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selCutQlt, 
 				/*input*/ProSelection selRefSrf, int nTrimDir);
@@ -179,15 +187,29 @@ void SetSurfColor(/*input*/const ProModelitem& item,
 // 创建填充面
 int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*output*/ProModelitem& itemQlt);
 
+// 通过草绘创建填充面
+int CreateFillSurfBySketch(/*input*/ProMdl pMdl, /*input*/ProSelection selSketchFeat, /*output*/ProModelitem& itemQlt);
+
 // 创建边界混合特征
 int CreateBlendSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2,
 					/*output*/ProModelitem& itemQlt);
 
-// 创建合并特征
-int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, /*input*/BOOL bCrossed);
+int CreateBlendSurfByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selCurve1, /*input*/ProSelection selCurve2,
+						   /*output*/ProModelitem& itemQlt);
 
-// 偏移面
-int OffsetSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*/double dOffset,
+// 创建合并特征
+int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, 
+			   /*input*/ProSrfMrgType mrgType = PRO_SRF_MRG_INTSCT);
+
+// 修改合并方向
+BOOL ChangeMergeDir(ProFeature featMerge, int nIndex);
+
+// 偏移面组
+int OffsetQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*/double dOffset,
+			   /*output*/ProModelitem& itemQlt);
+
+// 偏移曲面
+int OffsetSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*input*/double dOffset,
 			   /*output*/ProModelitem& itemQlt);
 
 // 创建投影特征
@@ -209,11 +231,52 @@ int ExtendSrfByEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge, /*input
 // 延展到面
 int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/ProSelection selSrf);
 
+// 延展面
+int ExtendSrfByContour(/*input*/ProMdl pMdl, /*input*/ProSelection selSurf, /*input*/double dExtendDist);
+
 // 输出特征的xml
 void ExportElemTreeXML();
 
+// 通过起始边和终止边创建曲线
+int CreateFromToCopyCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, /*output*/ProModelitem& itemCurve);
 
+// 修改复制曲线的方向
+int ModifyCopeCurveDirection(/*input*/ProGroup udf, /*output*/ProModelitem& itemCurve);
+
+// 通过起始边和终止边创建目的链
+int CreateFromToChain(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2);
+
+// 判断两条边是否共面
+BOOL IsEdgeInSameSurf(/*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, /*output*/ProSelection& selSurf);
+
+// 创建特征组
+int CreateFeatGroup(ProMdl pMdl, vector<int>& arrFeatID, const CString& strGroupName);
+
+// 创建加厚特征
+int ThickQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/double dThick);
+
+// 创建发布几何
+int CreatePublishGeom(ProMdl pMdl, ProSelection selQuilt);
+
+// 创建复制几何
+int CreateCopyGeom(ProMdl pMdl, ProSelection selRefMdl, ProSelection selPubFeat, ProModelitem& itemQuilt);
 
 //===================================================================================================
+
+BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge, 
+						   ProSurface &pNeighborSurf);											// 根据公共边获取邻面
+
+// 检查两个Quilt是否相邻
+BOOL CheckTwoQuiltNeighbor(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2, ProEdge& edge1, ProEdge& edge2);
+
+// 检查两个Quilt是否相交
+BOOL CheckTwoQuiltInstersect(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2);
+
+// 获取指定面在面组中的连接面
+void GetNeighborSurfInQuilt(ProMdl pMdl, ProSurface surf, ProQuilt quilt, vector<int>&arrNeighborID);
+
+// 测量两个几何对象之间的距离
+BOOL MeasureDistance(ProGeomitem& item1, ProGeomitem& item2,
+					 double& dDistance, Pro3dPnt& pnt1, Pro3dPnt& pnt2);
 
 #endif

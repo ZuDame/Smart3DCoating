@@ -1,8 +1,11 @@
-CD_Export 导出
+ShortCut_Export 输出
 #
 #
-CD_Export_STL 导出STL
+CD_Export_STL 导出至STL
 导出包覆面到STL文件
+#
+CD_Export_STP 导出至STP
+导出包覆体到STP文件
 #
 CD_Close  退出
 关闭快捷菜单

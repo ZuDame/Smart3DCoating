@@ -3,7 +3,7 @@ Smart3DCoating
 #
 #
 CD_ShortCutMenu
-Start Shortcut menu(&R)...
+Start Shortcut menu(&M)...
 #
 #
 CD_ShortCutMenu Operator
@@ -15,7 +15,7 @@ Start Shortcut menu
 #
 #
 CD_Clean
-Clean(&C)...
+Clean(&R)...
 #
 #
 CD_Clean Operator
@@ -27,7 +27,7 @@ Clean
 #
 #
 CD_Create
-Create Surface(&D)
+Create Surface(&C)
 #
 #
 CD_Create Operator
@@ -46,28 +46,52 @@ Show CD_RapidCreate Operator
 Rapid Create
 #
 #
-CD_CreateUseSrf
-Create use Surface(&S)...
+CD_CreateBySrf
+Create by Surface(&S)...
 #
 #
-CD_CreateUseSrf Operator
-Create use Surface
+CD_CreateBySrf Operator
+Create by Surface
 #
 #
-Show CD_CreateUseSrf Operator
-Create use Surface
+Show CD_CreateBySrf Operator
+Create by Surface
 #
 #
-CD_CreateUseEdge
-Create use Edges(&E)...
+CD_CreateByEdge
+Create by Edges(&E)...
 #
 #
-CD_CreateUseEdge Operator
-Create use Edges
+CD_CreateByEdge Operator
+Create by Edges
 #
 #
-Show CD_CreateUseEdge Operator
-Create use Edges
+Show CD_CreateByEdge Operator
+Create by Edges
+#
+#
+CD_CreateByChain
+Create by Chains(&C)...
+#
+#
+CD_CreateByChain Operator
+Create by Chains
+#
+#
+Show CD_CreateByChain Operator
+Create by Chains
+#
+#
+CD_CreateBySketch
+Create by Sketch(&S)...
+#
+#
+CD_CreateBySketch Operator
+Create by Sketch
+#
+#
+Show CD_CreateBySketch Operator
+Create by Sketch
 #
 #
 CD_Trim
@@ -78,8 +102,28 @@ CD_Trim Operator
 Trim
 #
 #
-Show CD_Trim Operator
-Trim
+CD_TrimByEdge
+Trim by Edge(&E)...
+#
+#
+CD_TrimByEdge Operator
+Trim by Edge
+#
+#
+Show CD_TrimByEdge Operator
+Trim by Edge
+#
+#
+CD_TrimBySketch
+Trim by Sketch(&S)...
+#
+#
+CD_TrimBySketch Operator
+Trim by Sketch
+#
+#
+Show CD_TrimBySketch Operator
+Trim by Sketch
 #
 #
 CD_Merge
@@ -90,8 +134,28 @@ CD_Merge Operator
 Merge
 #
 #
-Show CD_Merge Operator
-Merge
+CD_Merge_Manual
+Merge Manual(&M)...
+#
+#
+CD_Merge_Manual Operator
+Merge Manual
+#
+#
+Show CD_Merge_Manual Operator
+Merge Manual
+#
+#
+CD_Merge_Auto
+Merge Auto(&A)...
+#
+#
+CD_Merge_Auto Operator
+Merge Auto
+#
+#
+Show CD_Merge_Auto Operator
+Merge Auto
 #
 #
 CD_Offset
@@ -127,7 +191,7 @@ Offset Single
 #
 #
 CD_Bottom
-Bottom parallel(&B)
+Bottom parallel(&P)
 #
 #
 CD_Bottom Operator
@@ -158,16 +222,48 @@ Show CD_BottomExpand Operator
 Expand Cladding to keep parallel
 #
 #
+CD_Create_Body
+Create Body(&B)...
+#
+#
+CD_Create_Body Operator
+Create Body
+#
+#
+Show CD_Create_Body Operator
+Create Body
+#
+#
 CD_Export
-Export STL(&S)...
+Export(&E)...
 #
 #
 CD_Export Operator
+Export(&E)...
+#
+#
+CD_Export_STL
+Export STL(&S)...
+#
+#
+CD_Export_STL Operator
 Export STL
 #
 #
-Show CD_Export Operator
+Show CD_Export_STL Operator
 Export STL
+#
+#
+CD_Export_STP
+Export STP(&S)...
+#
+#
+CD_Export_STP Operator
+Export STP
+#
+#
+Show CD_Export_STP Operator
+Export STP
 #
 #
 CD_LicenseServer

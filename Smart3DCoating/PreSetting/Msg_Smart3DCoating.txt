@@ -3,7 +3,7 @@ Smart3DCoating
 #
 #
 CD_ShortCutMenu
-启动快捷菜单(&R)...
+启动快捷菜单(&M)...
 #
 #
 CD_ShortCutMenu Operator
@@ -14,12 +14,24 @@ Show CD_ShortCutMenu Operator
 启动快捷菜单
 #
 #
+CD_LoadSolid
+加载包覆对象(&R)...
+#
+#
+CD_LoadSolid Operator
+加载包覆对象
+#
+#
+Show CD_LoadSolid Operator
+加载包覆对象
+#
+#
 CD_Clean
-清理表面(&C)...
+清理表面(&R)...
 #
 #
 CD_Clean Operator
-清理表面凸起
+清理表面
 #
 #
 Show CD_Clean Operator
@@ -27,11 +39,11 @@ Show CD_Clean Operator
 #
 #
 CD_Create
-创建包覆面(&D)
+创建面(&C)
 #
 #
 CD_Create Operator
-创建包覆面
+创建面
 #
 #
 CD_RapidCreate
@@ -39,59 +51,123 @@ CD_RapidCreate
 #
 #
 CD_RapidCreate Operator
-快速创建
+选取几何面进行快速创建
 #
 #
 Show CD_RapidCreate Operator
-快速创建
+选取几何面进行快速创建
 #
 #
-CD_CreateUseSrf
+CD_CreateBySrf
 从几何面创建(&S)...
 #
 #
-CD_CreateUseSrf Operator
+CD_CreateBySrf Operator
 从几何面创建
 #
 #
-Show CD_CreateUseSrf Operator
+Show CD_CreateBySrf Operator
 从几何面创建
 #
 #
-CD_CreateUseEdge
+CD_CreateByEdge
 从边界创建(&E)...
 #
 #
-CD_CreateUseEdge Operator
-从边界创建
+CD_CreateByEdge Operator
+选择两条边进行创建
 #
 #
-Show CD_CreateUseEdge Operator
-从边界创建
+Show CD_CreateByEdge Operator
+选择两条边进行创建
+#
+#
+CD_CreateByChain
+从边界(链)创建(&C)...
+#
+#
+CD_CreateByChain Operator
+选择两条边链进行创建
+#
+#
+Show CD_CreateByChain Operator
+选择两条边链进行创建
+#
+#
+CD_CreateBySketch
+从指定区域创建(&C)...
+#
+#
+CD_CreateBySketch Operator
+选择指定区域草绘进行创建
+#
+#
+Show CD_CreateBySketch Operator
+选择指定区域草绘进行创建
 #
 #
 CD_Trim
-裁剪(&T)...
+裁剪面(&T)
 #
 #
 CD_Trim Operator
-裁剪包覆面
+裁剪面
 #
 #
-Show CD_Trim Operator
-裁剪包覆面
+CD_TrimByEdge
+几何裁剪(&E)...
+#
+#
+CD_TrimByEdge Operator
+选取包覆的几何环边进行裁剪
+#
+#
+Show CD_TrimByEdge Operator
+选取包覆的几何环边进行裁剪
+#
+#
+CD_TrimBySketch
+草绘裁剪(&S)...
+#
+#
+CD_TrimBySketch Operator
+选取表面草绘进行裁剪
+#
+#
+Show CD_TrimBySketch Operator
+选取表面草绘进行裁剪
 #
 #
 CD_Merge
-拼接(&M)...
+拼接面(&M)...
 #
 #
 CD_Merge Operator
-拼接包覆面
+合并包覆面
 #
 #
-Show CD_Merge Operator
-拼接包覆面
+CD_Merge_Manual
+手动拼接(&M)...
+#
+#
+CD_Merge_Manual Operator
+手动选取多个包覆面进行拼接
+#
+#
+Show CD_Merge_Manual Operator
+手动选取多个包覆面进行拼接
+#
+#
+CD_Merge_Auto
+自动拼接(&A)...
+#
+#
+CD_Merge_Auto Operator
+选取一个包覆面自动将关联面进行拼接
+#
+#
+Show CD_Merge_Auto Operator
+选取一个包覆面自动将关联面进行拼接
 #
 #
 CD_Offset
@@ -127,7 +203,7 @@ Show CD_OffsetSingle Operator
 #
 #
 CD_Bottom
-底面平齐(&B)
+底面平齐(&P)
 #
 #
 CD_Bottom Operator
@@ -158,16 +234,48 @@ Show CD_BottomExpand Operator
 向内放量时通过延伸确保包覆面集与模型底面平齐
 #
 #
+CD_Create_Body
+生成包覆体(&B)...
+#
+#
+CD_Create_Body Operator
+选择包覆面生成指定厚度的包覆体
+#
+#
+Show CD_Create_Body Operator
+选择包覆面生成指定厚度的包覆体
+#
+#
 CD_Export
-导出STL(&S)...
+导出(&E)...
 #
 #
 CD_Export Operator
-导出到STL文件
+导出(&E)...
 #
 #
-Show CD_Export Operator
-导出到STL文件
+CD_Export_STL
+导出至STL(&S)...
+#
+#
+CD_Export_STL Operator
+导出包覆面到STL文件
+#
+#
+Show CD_Export_STL Operator
+导出包覆面到STL文件
+#
+#
+CD_Export_STP
+导出至STP(&S)...
+#
+#
+CD_Export_STP Operator
+导出包覆体到STP文件
+#
+#
+Show CD_Export_STP Operator
+导出包覆体到STP文件
 #
 #
 CD_LicenseServer

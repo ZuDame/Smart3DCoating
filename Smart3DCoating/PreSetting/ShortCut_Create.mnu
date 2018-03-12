@@ -1,9 +1,15 @@
-CD_Create 创建包覆面
+ShortCut_Create 创建
 #
 #
-CD_RapidCreate 快速创建
+CD_RapidCreate 快速创建面
 选择几何面进行快速创建
 #
-CD_CreateUseEdge 从边界创建
-选择两条边界进行创建
+CD_CreateByEdge 从边界创建面
+选择两条边进行创建
+#
+CD_CreateByChain 从边界(链)创建面
+选择两条边链进行创建
+#
+CD_CreateBySketch 指定区域创建面
+选择一个草绘进行创建
 #

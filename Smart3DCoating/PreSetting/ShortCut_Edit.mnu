@@ -1,11 +1,17 @@
-CD_Edit 编辑包覆面
+ShortCut_Edit 编辑
 #
 #
-CD_Trim 裁剪
-选择包覆面和曲线进行裁剪
+CD_TrimByEdge 几何裁剪
+选取包覆的几何环边进行裁剪
 #
-CD_Merge 拼接
-选择多个包覆面进行拼接
+CD_TrimBySketch 草绘裁剪
+选取表面草绘进行裁剪
+#
+CD_Merge_Manual 手动拼接
+手动选取多个包覆面进行拼接
+#
+CD_Merge_Auto 自动拼接
+选取一个包覆面自动将关联面进行拼接
 #
 CD_OffsetGeneral 整体放量
 将包覆面整体偏离一段距离
@@ -18,4 +24,7 @@ CD_BottomCut 切除平齐
 #
 CD_BottomExpand 延伸平齐
 向内放量时通过延伸确保包覆面集与模型底面平齐
+#
+CD_Create_Body 生成包覆体
+选择包覆面生成指定厚度的包覆体
 #

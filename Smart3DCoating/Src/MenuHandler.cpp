@@ -12,9 +12,9 @@
 #include "MenuHandler.h"
 #include "PreGlobal.h"
 #include "DlgConfirm.h"
-
 #include "DlgAbout.h"
 #include "DlgConServer.h"
+#include "DlgMergeDir.h"
 
 //===================================================================================================
 
@@ -23,6 +23,8 @@
 #endif
 
 //===================================================================================================
+
+CDlgSetThick* g_pDlgThick = NULL;
 
 uiCmdAccessState ConServerAccessDefault(uiCmdAccessMode access_mode)
 {
@@ -101,33 +103,54 @@ BOOL CMenuHandler::Init()
 	char szSmart3DCoatingMenuName[] = "Smart3DCoatingMenuName";
 	ProMenubarMenuAdd(szSmart3DCoatingMenuName, "Smart3DCoating", "Utilities", PRO_B_TRUE, Msg);
 
-	AddMenuItem(szSmart3DCoatingMenuName, "CD_ShortCutMenu", ShowShortCutMenu, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_LoadSolid", OnLoadSolidActFn, MainAccessAvailable, Msg);
 	AddMenuItem(szSmart3DCoatingMenuName, "CD_Clean", OnCleanActFn, UserAccessDefault, Msg);
 
 	char szCreateChildMenuName[] = "Smart3DCoatingCreateMenuName";
 	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szCreateChildMenuName, "CD_Create", NULL, PRO_B_TRUE, Msg);
 	{
-		AddMenuItem(szCreateChildMenuName, "CD_RapidCreate", OnRapidCreatActFn, UserAccessDefault, Msg);
-		AddMenuItem(szCreateChildMenuName, "CD_CreateUseEdge", OnCreateByEdgeActFn, UserAccessDefault, Msg);
+		AddMenuItem(szCreateChildMenuName, "CD_RapidCreate", OnRapidCreatActFn, UserAccessDefault, Msg, "CD_RapidCreate.gif");
+		AddMenuItem(szCreateChildMenuName, "CD_CreateByEdge", OnCreateByEdgeActFn, UserAccessDefault, Msg, "CD_CreateByEdge.gif");
+		AddMenuItem(szCreateChildMenuName, "CD_CreateByChain", OnCreateByChainActFn, UserAccessDefault, Msg, "CD_CreateByChain.gif");
+		AddMenuItem(szCreateChildMenuName, "CD_CreateBySketch", OnCreateBySketchActFn, UserAccessDefault, Msg, "CD_CreateBySketch.gif");
 	}
-	AddMenuItem(szSmart3DCoatingMenuName, "CD_Trim", OnTrimActFn, UserAccessDefault, Msg);
-	AddMenuItem(szSmart3DCoatingMenuName, "CD_Merge", OnMergeActFn, UserAccessDefault, Msg);
+	char szTrimChildMenuName[] = "Smart3DCoatingTrimMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szTrimChildMenuName, "CD_Trim", NULL, PRO_B_TRUE, Msg);
+	{
+		AddMenuItem(szTrimChildMenuName, "CD_TrimByEdge", OnTrimByEdgeActFn, UserAccessDefault, Msg, "CD_TrimByEdge.gif");
+		AddMenuItem(szTrimChildMenuName, "CD_TrimBySketch", OnTrimBySketchActFn, UserAccessDefault, Msg, "CD_TrimBySketch.gif");
+	}
+
+	char szMergeChildMenuName[] = "Smart3DCoatingMergeMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szMergeChildMenuName, "CD_Merge", NULL, PRO_B_TRUE, Msg);
+	{
+		AddMenuItem(szMergeChildMenuName, "CD_Merge_Manual", OnMergeManualActFn, UserAccessDefault, Msg, "CD_Merge_Manual.gif");
+		AddMenuItem(szMergeChildMenuName, "CD_Merge_Auto", OnMergeAutoActFn, UserAccessDefault, Msg, "CD_Merge_Auto.gif");
+	}
 
 	char szOffsetChildMenuName[] = "Smart3DCoatingOffsetMenuName";
 	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szOffsetChildMenuName, "CD_Offset", NULL, PRO_B_TRUE, Msg);
 	{
-		AddMenuItem(szOffsetChildMenuName, "CD_OffsetGeneral", OnOffsetGeneralActFn, UserAccessDefault, Msg);
-		AddMenuItem(szOffsetChildMenuName, "CD_OffsetSingle", OnOffsetSingleActFn, UserAccessDefault, Msg);
+		AddMenuItem(szOffsetChildMenuName, "CD_OffsetGeneral", OnOffsetGeneralActFn, UserAccessDefault, Msg, "CD_OffsetGeneral.gif");
+		AddMenuItem(szOffsetChildMenuName, "CD_OffsetSingle", OnOffsetSingleActFn, UserAccessDefault, Msg, "CD_OffsetSingle.gif");
 	}
 
 	char szBottomChildMenuName[] = "Smart3DCoatingBottomMenuName";
 	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szBottomChildMenuName, "CD_Bottom", NULL, PRO_B_TRUE, Msg);
 	{
-		AddMenuItem(szBottomChildMenuName, "CD_BottomCut", OnBottomCutActFn, UserAccessDefault, Msg);
-		AddMenuItem(szBottomChildMenuName, "CD_BottomExpand", OnBottomExpandActFn, UserAccessDefault, Msg);
+		AddMenuItem(szBottomChildMenuName, "CD_BottomCut", OnBottomCutActFn, UserAccessDefault, Msg, "CD_BottomCut.gif");
+		AddMenuItem(szBottomChildMenuName, "CD_BottomExpand", OnBottomExpandActFn, UserAccessDefault, Msg, "CD_BottomExpand.gif");
 	}
-	AddMenuItem(szSmart3DCoatingMenuName, "CD_Export", OnExportActFn, UserAccessDefault, Msg);
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_Create_Body", OnCreateBodyActFn, UserAccessDefault, Msg, "CD_Create_Body.gif");
 
+	char szExportChildMenuName[] = "Smart3DCoatingExportMenuName";
+	ProMenubarmenuMenuAdd(szSmart3DCoatingMenuName, szExportChildMenuName, "CD_Export", NULL, PRO_B_TRUE, Msg);
+	{
+		AddMenuItem(szExportChildMenuName, "CD_Export_STL", OnExportSTLActFn, UserAccessDefault, Msg, "CD_Export_STL.gif");
+		//AddMenuItem(szExportChildMenuName, "CD_Export_STP", OnExportSTPActFn, UserAccessDefault, Msg);
+	}
+
+	AddMenuItem(szSmart3DCoatingMenuName, "CD_ShortCutMenu", ShowShortCutMenu, UserAccessDefault, Msg);
 
 	// 许可证服务器
 	char szLicenseServerChildMenuName[] = "CD_LicServerMenuName";
@@ -153,9 +176,9 @@ BOOL CMenuHandler::Init()
 
 	// 注册菜单文件
 	char szMnuName[] = "Smart3DCoating_ShortCut";
-	char szMnuNameCreate[] = "CD_Create";
-	char szMnuNameEdit[] = "CD_Edit";
-	char szMnuNameExport[] = "CD_Export";
+	char szMnuNameCreate[] = "ShortCut_Create";
+	char szMnuNameEdit[] = "ShortCut_Edit";
+	char szMnuNameExport[] = "ShortCut_Export";
 
 	ProMenuFileRegister(szMnuName, Mnu, &menuid);
 	ProMenuFileRegister(szMnuNameCreate, MnuCreate, &menuid_create);
@@ -165,14 +188,20 @@ BOOL CMenuHandler::Init()
 	// 设置菜单动作函数
 	ProMenubuttonActionSet(szMnuName, "CD_Clean", (ProMenubuttonAction)OnCleanActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameCreate, "CD_RapidCreate", (ProMenubuttonAction)OnRapidCreatActFn, NULL, 0);
-	ProMenubuttonActionSet(szMnuNameCreate, "CD_CreateUseEdge", (ProMenubuttonAction)OnCreateByEdgeActFn, NULL, 0);
-	ProMenubuttonActionSet(szMnuNameEdit, "CD_Trim", (ProMenubuttonAction)OnTrimActFn, NULL, 0);
-	ProMenubuttonActionSet(szMnuNameEdit, "CD_Merge", (ProMenubuttonAction)OnMergeActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameCreate, "CD_CreateByEdge", (ProMenubuttonAction)OnCreateByEdgeActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameCreate, "CD_CreateByChain", (ProMenubuttonAction)OnCreateByChainActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameCreate, "CD_CreateBySketch", (ProMenubuttonAction)OnCreateBySketchActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameEdit, "CD_TrimByEdge", (ProMenubuttonAction)OnTrimByEdgeActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameEdit, "CD_TrimBySketch", (ProMenubuttonAction)OnTrimBySketchActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameEdit, "CD_Merge_Manual", (ProMenubuttonAction)OnMergeManualActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameEdit, "CD_Merge_Auto", (ProMenubuttonAction)OnMergeAutoActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameEdit, "CD_OffsetGeneral", (ProMenubuttonAction)OnOffsetGeneralActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameEdit, "CD_OffsetSingle", (ProMenubuttonAction)OnOffsetSingleActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameEdit, "CD_BottomCut", (ProMenubuttonAction)OnBottomCutActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameEdit, "CD_BottomExpand", (ProMenubuttonAction)OnBottomExpandActFn, NULL, 0);
-	ProMenubuttonActionSet(szMnuNameExport, "CD_Export_STL", (ProMenubuttonAction)OnExportActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameEdit, "CD_Create_Body", (ProMenubuttonAction)OnCreateBodyActFn, NULL, 0);
+	ProMenubuttonActionSet(szMnuNameExport, "CD_Export_STL", (ProMenubuttonAction)OnExportSTLActFn, NULL, 0);
+	//ProMenubuttonActionSet(szMnuNameExport, "CD_Export_STP", (ProMenubuttonAction)OnExportSTPActFn, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameExport, "CD_Close", (ProMenubuttonAction)OnMenuQuit, NULL, 0);
 	ProMenubuttonActionSet(szMnuName, szMnuName, (ProMenubuttonAction)ProMenuDelete, NULL, 0);
 	ProMenubuttonActionSet(szMnuNameCreate, szMnuNameCreate, (ProMenubuttonAction)ProMenuDelete, NULL, 0);
@@ -184,6 +213,7 @@ BOOL CMenuHandler::Init()
 
 void CMenuHandler::UnInit()
 {
+	DestroyAllDialog();
 }
 
 //===================================================================================================
@@ -192,6 +222,14 @@ void CMenuHandler::UnInit()
 void DestroyAllDialog()
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	if (g_pDlgThick != NULL)
+	{
+		if (g_pDlgThick->GetSafeHwnd() != NULL)
+			g_pDlgThick->DestroyWindow();
+
+		SAFE_DELETE_POINTER(g_pDlgThick);
+	}
 }
 
 // 取消当前操作
@@ -230,7 +268,7 @@ void ShowShortCutMenu()
 	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
 		return;
 
-	static char *compoundmenu[] = {"Smart3DCoating_ShortCut", "CD_Create", "CD_Edit", "CD_Export", ""};
+	static char *compoundmenu[] = {"Smart3DCoating_ShortCut", "ShortCut_Create", "ShortCut_Edit", "ShortCut_Export", ""};
 	int nMenuid;
 	ProError status =ProCompoundmenuCreate(compoundmenu, &nMenuid);
 	if (status == PRO_TK_NO_ERROR)
@@ -251,6 +289,65 @@ void OnMenuQuit()
 		ProMenuDelete();
 		ProWindowActivate(nWnd);
 	}
+}
+
+// 加载包覆对象
+void OnLoadSolidActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	// 选择一个本地的待包覆模型
+	ProPath pathSelModel;
+	if (ProFileOpen(L"选择待包覆模型", L"*.prt,*.asm,*.stp,*.stl", NULL, NULL, NULL, NULL, pathSelModel) == PRO_TK_NO_ERROR)
+	{
+		ProPath pathFolder;
+		ProName nameModel, nameExt;
+		int nVersion;
+		ProFilenameParse(pathSelModel, pathFolder, nameModel, nameExt, &nVersion);
+
+		ProMdl pMdlToCoating;
+		ProMdlLoad(pathSelModel, PRO_MDL_UNUSED, PRO_B_FALSE, &pMdlToCoating);
+
+		// 创建一个装配体
+		CString strSolidName;
+		strSolidName = nameModel;
+
+		strSolidName.Format(L"%s_3DCoat", strSolidName);
+
+		ProName nameSolid;
+		wcsncpy_s(nameSolid, PRO_NAME_SIZE, strSolidName, _TRUNCATE);
+
+		ProSolid solid;
+		ProSolidCreate(nameSolid, PRO_ASSEMBLY, &solid);
+
+		// 将选择的待装配模型装配到装配体下
+		ProMatrix initPos = {
+			{1.0, 0.0, 0.0, 0.0},
+			{0.0, 1.0, 0.0, 0.0},
+			{0.0, 0.0, 1.0, 0.0},
+			{0.0, 0.0, 0.0, 1.0}
+		};
+		ProAsmcomp comp;
+		ProAsmcompAssemble(ProAssembly(solid), ProMdlToSolid(pMdlToCoating), initPos, &comp);
+		/*ProAsmcompconstraint compConstr;
+		ProAsmcompconstraintAlloc(&compConstr);
+		ProAsmcompconstraintTypeGet(compConstr, ;
+		ProAsmcompConstraintsSet(NULL, &comp, &compConstr);*/
+
+		ProMdlDisplay(solid);
+		int nWnd;
+		ProWindowCurrentGet(&nWnd);
+		ProWindowActivate(nWnd);
+	}
+
+	InvalidateDrawing();
+	ProMessageClear();
 }
 
 // 表面清理
@@ -401,8 +498,168 @@ void OnCreateByEdgeActFn()
 	ProMessageClear();
 }
 
-// 裁剪面
-void OnTrimActFn()
+// 从边界(链)创建
+void OnCreateByChainActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	// 检查当前模型环境
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+
+	int nFeatID[3]={0};
+	ProModelitem itemCurve[2];
+	
+	// 第1步：选取第一条边链的两条边
+	ShowMessageTip(L"Tips.选取同一个面上的两条边创建第一条边链...");
+	vector<ProSelection> arrSelEdge;
+	if (!SelectObject(arrSelEdge, "edge", 2))
+	{
+		return;
+	}
+	
+	// 第2步：创建第一条边链
+	int nSelCount = (int)arrSelEdge.size();
+	if (nSelCount == 1)
+		arrSelEdge.push_back(arrSelEdge[0]);
+	nFeatID[0] = CreateFromToCopyCurve(pMdl, arrSelEdge[0], arrSelEdge[1], itemCurve[0]);
+	if (nFeatID[0] <= 0)
+		return;
+
+	// 第3步：选取面上的两条边
+	ShowMessageTip(L"Tips.选取同一个面上的两条边创建第二条边链...");
+	vector<ProSelection> arrSelEdge2;
+	if (!SelectObject(arrSelEdge2, "edge", 2))
+	{
+		return;
+	}
+
+	// 第4步：创建第二条边链
+	int nSelCount2 = (int)arrSelEdge2.size();
+	if (nSelCount2 == 1)
+		arrSelEdge2.push_back(arrSelEdge2[0]);
+	nFeatID[1] = CreateFromToCopyCurve(pMdl, arrSelEdge2[0], arrSelEdge2[1], itemCurve[1]);
+	if (nFeatID[1] <= 0)
+		return;
+
+	// 第5步：创建边界混合面
+	ProSelection selCurve[2];
+	ProSelectionAlloc(NULL, &itemCurve[0], &selCurve[0]);
+	ProSelectionAlloc(NULL, &itemCurve[1], &selCurve[1]);
+	ProModelitem itemQuilt;
+	nFeatID[2] = CreateBlendSurfByCurve(pMdl, selCurve[0], selCurve[1], itemQuilt);
+	if (nFeatID[2] > 0)
+	{
+		SetSurfColor(itemQuilt, 154, 205, 7);
+		ProGroup group;
+		ProLocalGroupCreate(ProMdlToSolid(pMdl), nFeatID, 3, L"包覆面_创建", &group);
+	}
+	else
+	{
+		MessageBox(NULL, L"创建失败，详见模型特征树！", L"提示", MB_OK);
+	}
+
+	//ExportElemTreeXML();
+
+	/*ProChaincollUIControl ui[1]={PRO_CHAINCOLLUI_FROM_TO};
+	ProCollection collect1, collect2;
+	status = ProCrvcollectionAlloc(&collect1);
+	status = ProCrvcollectionAlloc(&collect2);
+	
+	ProCurvesCollect(ui, 1, NULL, NULL, &collect1, NULL, NULL);
+	ProCurvesCollect(ui, 1, NULL, NULL, &collect2, NULL, NULL);
+
+	ProSelection* r_result_sellist1, *r_result_sellist2;
+	int nNum1, nNum2;
+	status = ProCrvcollectionRegenerate(collect1, &r_result_sellist1, &nNum1);
+	status = ProCrvcollectionRegenerate(collect2, &r_result_sellist2, &nNum2);
+
+	ProModelitem itemQuilt;
+	CreateBlendSurfByChain(pMdl, r_result_sellist1[0], r_result_sellist2[0], itemQuilt);*/
+
+	/*vector<ProSelection> arrSelEdges;
+	ProSelection selSrf = NULL;
+	if (SelectObject(arrSelEdges, "edge", 2))
+	{
+		ProCollection collect;
+		status = ProCrvcollectionAlloc(&collect);
+		ProCrvcollinstr instCurv;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_FROM_TO_INSTR, &instCurv);
+
+		for (int i=0; i<(int)arrSelEdges.size(); i++)
+		{
+			ProReference refCurve;
+			status = ProSelectionToReference(arrSelEdges[i], &refCurve);
+			status = ProCrvcollinstrReferenceAdd(instCurv, refCurve);
+		}
+		status = ProCrvcollinstrAttributeSet(instCurv, PRO_CURVCOLL_ALL);
+		status = ProCrvcollectionInstructionAdd(collect, instCurv);*/
+		
+		//ProSelection* r_result_sellist;
+		//int nNum;
+		//ProCrvcollectionRegenerate(collect, &r_result_sellist, &nNum);
+
+		//ProSelectionHighlight(selSrf, PRO_COLOR_WARNING);
+
+		///*status = ProCollectionFree(&collect);
+		//status = ProCrvcollinstrFree(instCurv);*/
+	/*}*/
+
+	InvalidateDrawing();
+	ProMessageClear();
+}
+
+// 从指定区域创建
+void OnCreateBySketchActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	// 检查当前模型环境
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+
+	// 选取草绘
+	ShowMessageTip(L"Tips.选取一个草绘曲线...");
+	vector<ProSelection> arrSelFeat;
+	if (SelectObject(arrSelFeat, "feature"))
+	{
+		// 检查特征类型是否为草绘
+		// ...待补充
+
+		ProModelitem itemQuilt;
+		int nFeatID = CreateFillSurfBySketch(pMdl, arrSelFeat[0], itemQuilt);
+		if (nFeatID > 0)
+		{
+			SetSurfColor(itemQuilt, 154, 205, 7);
+			ShowMessageTip(L"Tips.包覆面创建成功！");
+			return;
+		}
+	}
+	ShowMessageTip(L"Tips.包覆面创建失败！");
+}
+
+// 环边裁剪
+void OnTrimByEdgeActFn()
 {
 	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
 		return;
@@ -529,8 +786,156 @@ void OnTrimActFn()
 	ProMessageClear();
 }
 
+// 草绘裁剪
+void OnTrimBySketchActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	ProError status;
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+	
+	// 选择草绘
+	vector<ProSelection> arrSel;
+	ShowMessageTip(L"Tips.选择草绘特征...");
+	while (SelectObject(arrSel, "feature"))
+	{
+		// 检查是否为草绘曲线
+		ProFeature featSketch;
+		status = ProSelectionModelitemGet(arrSel[0], &featSketch);
+		ProFeattype featType;
+		status = ProFeatureTypeGet(&featSketch, &featType);
+		if (featType == PRO_FEAT_CURVE)
+		{
+			ProAsmcomppath acomppath;
+			ProSelectionAsmcomppathGet(arrSel[0], &acomppath);
+
+			ProSelection selQuilt;	// 待裁剪的平面
+			BOOL bGetQuilt = FALSE;
+
+			// 获取草绘曲线所在的平面
+			ProElement elemTreeCurve = NULL;
+			ProFeatureElemtreeExtract(&featSketch, NULL, PRO_FEAT_EXTRACT_NO_OPTS, &elemTreeCurve);
+			ProElempathItem pathItemType[1];
+			pathItemType[0].type = PRO_ELEM_PATH_ITEM_TYPE_ID;
+			pathItemType[0].path_item.elem_id = PRO_E_CURVE_TYPE;
+			ProElempath elemPathCurveType;
+			ProElempathAlloc(&elemPathCurveType);
+			ProElempathDataSet(elemPathCurveType, pathItemType, 1);
+			ProElement elemType;
+			status = ProElemtreeElementGet(elemTreeCurve, elemPathCurveType, &elemType);
+			if (status == PRO_TK_NO_ERROR)
+			{
+				ProValue valType;
+				status = ProElementValueGet(elemType, &valType);
+				ProValueData valdataType;
+				status = ProValueDataGet(valType, &valdataType);
+				if (valdataType.v.i == PRO_CURVE_TYPE_SKETCHED)
+				{
+					// 确定为草绘曲线，进而获取草绘平面
+					ProElempathItem pathItemSketchPlane[3];
+					pathItemSketchPlane[0].type = PRO_ELEM_PATH_ITEM_TYPE_ID;
+					pathItemSketchPlane[0].path_item.elem_id = PRO_E_STD_SECTION;
+					pathItemSketchPlane[1].type = PRO_ELEM_PATH_ITEM_TYPE_ID;
+					pathItemSketchPlane[1].path_item.elem_id = PRO_E_STD_SEC_SETUP_PLANE;
+					pathItemSketchPlane[2].type = PRO_ELEM_PATH_ITEM_TYPE_ID;
+					pathItemSketchPlane[2].path_item.elem_id = PRO_E_STD_SEC_PLANE;
+					ProElempath elemPathPlane;
+					ProElempathAlloc(&elemPathPlane);
+					ProElempathDataSet(elemPathPlane, pathItemSketchPlane, 3);
+					ProElement elemPlane;
+					status = ProElemtreeElementGet(elemTreeCurve, elemPathPlane, &elemPlane);
+					if (status == PRO_TK_NO_ERROR)
+					{
+						ProValue valPlane;
+						status = ProElementValueGet(elemPlane, &valPlane);
+						ProValueData valdataPlane;
+						status = ProValueDataGet(valPlane, &valdataPlane);
+						ProGeomitem itemSurf;
+						ProSelectionModelitemGet(valdataPlane.v.r, &itemSurf);
+						ProSurface surf;
+						ProGeomitemToSurface(&itemSurf, &surf);
+
+						// 获取面所在面组
+						ProQuilt quilt;
+						status = ProSurfaceQuiltGet(ProMdlToSolid(pMdl), surf, &quilt);
+						if (status == PRO_TK_NO_ERROR)
+						{
+							ProGeomitem itemQuilt;
+							status = ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt, &itemQuilt);
+							status = ProSelectionAlloc(&acomppath, &itemQuilt, &selQuilt);
+							bGetQuilt = TRUE;
+						}
+					}
+				}
+			}
+			
+			if (!bGetQuilt)
+			{
+				ShowMessageTip(L"Tips.无法获取所选草绘的放置面，请手动选择需裁剪的面...");
+				// 手动选取待裁剪的面
+				vector<ProSelection> arrSelSrf;
+				if (SelectObject(arrSelSrf, "dtmqlt"))
+				{
+					ProSelectionCopy(arrSelSrf[0], &selQuilt);
+				}
+				else
+				{
+					break;
+				}
+			}
+	
+			// 遍历特征，获取特征中的全部复合曲线
+			vector<ProGeomitem> arrItemCurves;
+			status = ProFeatureGeomitemVisit(&featSketch, PRO_CURVE, FeatureGeomsGetAction, NULL, &arrItemCurves);
+			vector<int> arrFeatID;
+			for (int i=0; i<arrItemCurves.size(); i++)
+			{
+				ProCurve curve;
+				status = ProGeomitemToCurve(&arrItemCurves[i], &curve);
+				// 检查是否为复合曲线
+				ProEnttype curveType;
+				status = ProCurveTypeGet(curve, &curveType);
+				if (curveType == PRO_ENT_CMP_CRV)
+				{
+					// 进行裁剪
+					ProSelection selCurve;
+					status = ProSelectionAlloc(&acomppath, &arrItemCurves[i], &selCurve);
+					int nFeatID = TrimSurfaceByCurve(pMdl, selQuilt, selCurve, PRO_EDGE_SAME_DIRECTION);
+					if (nFeatID > 0)
+					{
+						// 创建成功，记录特征ID
+						arrFeatID.push_back(nFeatID);
+					}
+				}
+			}
+			// 合并成组
+			CreateFeatGroup(pMdl, arrFeatID, L"包覆面_裁剪");
+			break;
+		}
+		else
+		{
+			// 
+			MessageBox(NULL, L"所选特征非草绘特征，请重新选择！", L"提示", MB_OK);
+		}
+	}
+
+	InvalidateDrawing();
+	ProMessageClear();
+}
+
 // 拼接包覆面
-void OnMergeActFn()
+void OnMergeManualActFn()
 {
 	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
 		return;
@@ -553,10 +958,97 @@ void OnMergeActFn()
 	if (SelectObject(arrSelQuilts, "dtmqlt", MAX_SELECTION))
 	{
 		// 第3步：执行拼接
-		if (MergeSurfs(pMdl, arrSelQuilts, FALSE) < 0)
+		int nFeatID = MergeSurfs(pMdl, arrSelQuilts);
+		if (nFeatID < 0)
 		{
 			MessageBox(NULL, L"拼接失败，详见模型特征树！", L"提示", MB_OK);
 		}
+		else if (arrSelQuilts.size() == 2)
+		{
+			// 修改合并的方向
+			ProFeature featMerge;
+			featMerge.id = nFeatID;
+			featMerge.type = PRO_FEATURE;
+			featMerge.owner = pMdl;
+			CDlgMergeDir dlgDir;
+			dlgDir.IntiFeature(featMerge);
+			dlgDir.DoModal();
+		}
+	}
+
+	InvalidateDrawing();
+	ProMessageClear();
+}
+
+// 拼接（智能选取）
+void OnMergeAutoActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+	ProError status;
+
+	// 选取一个包覆面
+	ShowMessageTip(L"Tips.选择需要拼接的包覆面...");
+	vector<ProSelection> arrSelQuilts;
+	if (SelectObject(arrSelQuilts, "dtmqlt"))
+	{
+		ProModelitem itemQuiltStart;
+		status = ProSelectionModelitemGet(arrSelQuilts[0], &itemQuiltStart);
+		ProQuilt quiltStart;
+		status = ProGeomitemToQuilt(&itemQuiltStart, &quiltStart);
+
+		vector<ProQuilt> arrQuiltMerge;
+		arrQuiltMerge.push_back(quiltStart);
+
+		// 获取全部Quilt
+		vector<ProQuilt> arrQuilt;
+		status = ProSolidQuiltVisit(ProMdlToSolid(pMdl), SolidQuiltsGetAction, NULL, &arrQuilt);
+		ProQuilt quiltCurr;
+		for (int i=0; i<arrQuiltMerge.size(); i++)
+		{
+			quiltCurr = arrQuiltMerge[i];
+			for (int j=0; j<arrQuilt.size(); )
+			{
+				if (quiltCurr == arrQuilt[j])
+				{
+					// 剔除自身
+					arrQuilt.erase(arrQuilt.begin()+j);
+					continue;
+				}
+				ProEdge edge1, edge2;
+				if (CheckTwoQuiltNeighbor(pMdl, quiltCurr, arrQuilt[j], edge1, edge2))
+				{
+					arrQuiltMerge.push_back(arrQuilt[j]);
+					arrQuilt.erase(arrQuilt.begin()+j);
+					continue;
+				}
+				j++;
+			}
+		}
+		
+		vector<ProSelection> arrSelMergeQuilt;
+		for (int i=0; i<arrQuiltMerge.size(); i++)
+		{
+			ProModelitem itemQuilt;
+			ProQuiltToGeomitem(ProMdlToSolid(pMdl), arrQuiltMerge[i], &itemQuilt);
+			ProSelection selQuilt = NULL;
+			ProSelectionAlloc(NULL, &itemQuilt, &selQuilt);
+			arrSelMergeQuilt.push_back(selQuilt);
+		}
+		
+		MergeSurfs(pMdl, arrSelMergeQuilt);
 	}
 
 	InvalidateDrawing();
@@ -594,7 +1086,7 @@ void OnOffsetGeneralActFn()
 		{
 			// 第4步：创建偏移特征
 			ProModelitem itemQuilt;
-			int nOffsetID = OffsetSurf(pMdl, arrSelSrf[0], dOffset, itemQuilt);
+			int nOffsetID = OffsetQuilt(pMdl, arrSelSrf[0], dOffset, itemQuilt);
 			if (nOffsetID > 0)
 			{
 				SetSurfColor(itemQuilt, 255, 215, 0);
@@ -671,8 +1163,8 @@ void OnOffsetSingleActFn()
 	ProMessageClear();
 }
 
-// 导出
-void OnExportActFn()
+// 导出至STL
+void OnExportSTLActFn()
 {
 	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
 		return;
@@ -726,6 +1218,32 @@ void OnExportActFn()
 				MessageBox(NULL, L"导出stl失败", L"提示", MB_OK|MB_ICONWARNING);
 		}
 	}
+
+	InvalidateDrawing();
+	ProMessageClear();
+}
+
+// 导出至STP
+void OnExportSTPActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	// 检查当前模型环境
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+
+	InvalidateDrawing();
+	ProMessageClear();
 }
 
 // 底面切除
@@ -852,6 +1370,118 @@ void OnBottomExpandActFn()
 	ProMessageClear();
 }
 
+// 生成包覆体
+void OnCreateBodyActFn()
+{
+	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;
+
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	DestroyAllDialog();
+	CancelSelectDialog();
+	Sleep(50);
+
+	// 检查当前模型环境
+	ProMdl pMdl = GetCurrentMdl();
+	if (pMdl == NULL)
+	{
+		MessageBox(NULL, L"当前环境未发现模型！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+
+	ProMdlType typeMdl;
+	ProMdlTypeGet(pMdl, &typeMdl);
+	if (typeMdl != PRO_MDL_ASSEMBLY)
+	{
+		MessageBox(NULL, L"该功能仅在装配环境下有效！", L"提示", MB_OK|MB_ICONWARNING);
+		return;
+	}
+
+	//ExportElemTreeXML();
+
+	// 选择一个面组
+	vector<ProSelection> arrSelQlt;
+	ShowMessageTip(L"Tips.选择要加厚的包覆面...");
+	if (SelectObject(arrSelQlt, "dtmqlt"))
+	{
+		// 输入整体加厚值
+		double dThickValue;
+		ShowMessageTip(L"指定厚度值，不能为0，但可以为负值：");
+		if (ProMessageDoubleRead(NULL, &dThickValue) == PRO_TK_NO_ERROR)
+		{
+			// 创建发布几何
+			int nPubFeatID = CreatePublishGeom(pMdl, arrSelQlt[0]);
+
+			ProName nameAsm;
+			ProMdlNameGet(pMdl, nameAsm);
+			CString strNamePart = nameAsm;
+			ProName namePart;
+			for (int i=101; ;i++)
+			{
+				CString strTemp;
+				strTemp.Format(L"%s_%d", nameAsm, i);
+				wcsncpy_s(namePart, PRO_NAME_SIZE, strTemp, _TRUNCATE);
+				ProMdl pMdlTemp;
+				if (ProMdlInit(namePart, PRO_MDL_PART, &pMdlTemp) == PRO_TK_E_NOT_FOUND)
+					break;
+			}
+
+			// 新建一个零件
+			ProAsmcomp compPart;
+			ProAsmcompCreateCopy(ProMdlToAssembly(pMdl), namePart, PRO_MDL_PART, NULL, PRO_B_FALSE, &compPart);
+			//ProSolidRegenerate(pMdl);
+			ProMdl pMdlPart;
+			ProAsmcompMdlGet(&compPart, &pMdlPart);
+
+			ProModelitem itemAsm;
+			ProMdlToModelitem(pMdl, &itemAsm);
+			ProSelection selAsm;
+			ProSelectionAlloc(NULL, &itemAsm, &selAsm);
+
+			ProFeature featPub;
+			featPub.id = nPubFeatID;
+			featPub.owner = pMdl;
+			featPub.type = PRO_FEATURE;
+			ProSelection selPubFeat;
+			ProSelectionAlloc(NULL, &featPub, &selPubFeat);
+
+			// 创建复制几何
+			ProModelitem itemCopyQuilt;
+			CreateCopyGeom(pMdlPart, selAsm, selPubFeat, itemCopyQuilt);
+			ProSelection selCopyQuilt;
+			ProSelectionAlloc(NULL, &itemCopyQuilt, &selCopyQuilt);
+
+			// 弹出提示：是否要对单个面设置厚度
+			if (MessageBox(NULL, L"是否要对单个面设置厚度", L"提示", MB_YESNO|MB_ICONQUESTION) == IDYES)
+			{
+				ProMdlDisplay(pMdlPart);
+				int nWndIDPart;
+				ProMdlWindowGet(pMdlPart, &nWndIDPart);
+				ProWindowActivate(nWndIDPart);
+
+				// 弹出对话框
+				if (g_pDlgThick != NULL)
+				{
+					if (g_pDlgThick->GetSafeHwnd() != NULL)
+						g_pDlgThick->DestroyWindow();
+
+					SAFE_DELETE_POINTER(g_pDlgThick);
+				}
+				g_pDlgThick = new CDlgSetThick();
+				g_pDlgThick->InitSurfData(pMdl, selCopyQuilt, dThickValue);
+				g_pDlgThick->Create(IDD_DLG_SETTHICK);
+				g_pDlgThick->ShowWindow(SW_SHOW);
+			}
+			else
+			{
+				ThickQuilt(pMdlPart, selCopyQuilt, dThickValue);
+			}
+		}
+	}
+
+	InvalidateDrawing();
+	ProMessageClear();
+}
 
 // 网络连接的响应函数
 void ConServerActFn()

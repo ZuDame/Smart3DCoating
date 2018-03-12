@@ -10,6 +10,8 @@
 #ifndef __MenuHandler_h__
 #define __MenuHandler_h__
 
+#include "DlgSetThick.h"
+
 //===================================================================================================
 
 typedef void (*actionFunc)();
@@ -50,20 +52,35 @@ public:
 //===================================================================================================
 // 定义菜单响应函数
 
+// 加载待包覆对象
+void OnLoadSolidActFn();
+
 // 表面清理
 void OnCleanActFn();
 
 // 快速创建
 void OnRapidCreatActFn();
 
-// 通过边界创建
+// 从边界创建
 void OnCreateByEdgeActFn();
 
-// 裁剪
-void OnTrimActFn();
+// 从边界(链)创建
+void OnCreateByChainActFn();
 
-// 拼接
-void OnMergeActFn();
+// 从指定区域创建
+void OnCreateBySketchActFn();
+
+// 环边裁剪
+void OnTrimByEdgeActFn();
+
+// 草绘裁剪
+void OnTrimBySketchActFn();
+
+// 手动拼接
+void OnMergeManualActFn();
+
+// 自动拼接
+void OnMergeAutoActFn();
 
 // 整体放量
 void OnOffsetGeneralActFn();
@@ -77,8 +94,14 @@ void OnBottomCutActFn();
 // 底面延伸
 void OnBottomExpandActFn();
 
-// 导出
-void OnExportActFn();
+// 生成包覆体
+void OnCreateBodyActFn();
+
+// 导出至STL
+void OnExportSTLActFn();
+
+// 导出至STP
+void OnExportSTPActFn();
 
 // 显示快捷菜单
 void ShowShortCutMenu();
@@ -96,5 +119,7 @@ void OnHelp();
 void OnAbout();
 
 //===================================================================================================
+
+extern CDlgSetThick* g_pDlgThick;
 
 #endif

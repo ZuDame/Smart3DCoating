@@ -189,7 +189,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg_Smart3DCoating.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg_eng.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\Msg_Smart3DCoating.txt&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)\..\..\ADFLibs\__Redist\Runtime\DeviceCom.exe&quot;  &quot;C:\PreStart\Smart3DCoating\&quot; /D /Q /R /Y&#x0D;&#x0A;"
+				CommandLine="xcopy &quot;$(ProjectDir)PreSetting\Msg_Smart3DCoating.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Msg_Smart3DCoating.txt&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\Protk.dat&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(OutDir)\Bin\$(ProjectName)_Win64_ProE5.dll&quot; &quot;C:\PreStart\Smart3DCoating\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\chinese_cn\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Create.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Edit.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(ProjectDir)PreSetting\ShortCut_Export.mnu&quot; &quot;C:\PreStart\Smart3DCoating\Text\usascii\&quot; /D /E /Q /R /Y&#x0D;&#x0A;xcopy &quot;$(SolutionDir)\..\..\ADFLibs\__Redist\Runtime\DeviceCom.exe&quot;  &quot;C:\PreStart\Smart3DCoating\&quot; /D /Q /R /Y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -771,14 +771,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Src\DlgConfirm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Src\DlgConfirm.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Src\Global.cpp"
 				>
 			</File>
@@ -986,11 +978,35 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Src\DialogUI\DlgConfirm.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Src\DialogUI\DlgConfirm.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Src\DialogUI\DlgConServer.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Src\DialogUI\DlgConServer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Src\DialogUI\DlgMergeDir.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Src\DialogUI\DlgMergeDir.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Src\DialogUI\DlgSetThick.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Src\DialogUI\DlgSetThick.h"
 					>
 				</File>
 			</Filter>
