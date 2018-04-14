@@ -265,8 +265,8 @@ void DeleteOperator()
 // 显示快捷菜单
 void ShowShortCutMenu()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	static char *compoundmenu[] = {"Smart3DCoating_ShortCut", "ShortCut_Create", "ShortCut_Edit", "ShortCut_Export", ""};
 	int nMenuid;
@@ -280,8 +280,8 @@ void ShowShortCutMenu()
 // 退出快捷菜单
 void OnMenuQuit()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	int nWnd;
 	if (ProWindowCurrentGet(&nWnd) == PRO_TK_NO_ERROR)
@@ -294,8 +294,8 @@ void OnMenuQuit()
 // 加载包覆对象
 void OnLoadSolidActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -312,7 +312,15 @@ void OnLoadSolidActFn()
 		ProFilenameParse(pathSelModel, pathFolder, nameModel, nameExt, &nVersion);
 
 		ProMdl pMdlToCoating;
-		ProMdlLoad(pathSelModel, PRO_MDL_UNUSED, PRO_B_FALSE, &pMdlToCoating);
+		if (CString(nameExt).CompareNoCase(L"stp") == 0 || CString(nameExt).CompareNoCase(L"step") == 0)
+		{
+			LoadStep(CString(pathSelModel), pMdlToCoating);
+		}
+		else
+		{
+			ProMdlLoad(pathSelModel, PRO_MDL_UNUSED, PRO_B_FALSE, &pMdlToCoating);
+		}
+
 
 		// 创建一个装配体
 		CString strSolidName;
@@ -353,8 +361,8 @@ void OnLoadSolidActFn()
 // 表面清理
 void OnCleanActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -372,34 +380,38 @@ void OnCleanActFn()
 	// 第2步：选择参考
 	ShowMessageTip(L"Tips.选择几何平面进行清理，可多选...");
 	vector<ProSelection> arrSelSrf;
+	vector<ProModelitem> arrItemSrf;
 	while (SelectObject(arrSelSrf, "surface", MAX_SELECTION))
 	{
 		BOOL bError = FALSE;
+		// 第3步：创建基准面
 		for (int i=0; i<(int)arrSelSrf.size(); i++)
 		{
 			ProModelitem itemSurf;
 			ProSelectionModelitemGet(arrSelSrf[i], &itemSurf);
 
-			// 第3步：创建基准面
 			ProModelitem itemPlane;
 			int nDatumFeatID = CreateDatumPlane(pMdl, arrSelSrf[i], itemPlane);
 			if (nDatumFeatID > 0)
 			{
-				// 第4步：创建实体化特征
-				ProSelection selPlane;
-				ProSelectionAlloc(NULL, &itemPlane, &selPlane);
-				if (CreateSolidify(pMdl, selPlane) < 0)
-				{
-					bError = TRUE;
-				}
-				SAFE_DELETE_SELECTION(selPlane);
+				arrItemSrf.push_back(itemPlane);
 			}
-			else
+		}
+		// 第4步：创建实体化特征
+		for (int i=0; i<(int)arrItemSrf.size(); i++)
+		{
+			ProSelection selPlane;
+			ProSelectionAlloc(NULL, &arrItemSrf[i], &selPlane);
+			if (CreateSolidify(pMdl, selPlane) < 0)
 			{
 				bError = TRUE;
 			}
+			SAFE_DELETE_SELECTION(selPlane);
 		}
 
+		arrSelSrf.clear();
+		arrItemSrf.clear();
+				
 		// 第5步：显示处理结果
 		if (bError && MessageBox(NULL, L"部分特征创建失败，详见模型特征树。是否继续？", L"提示", MB_YESNO) == IDNO)
 		{
@@ -413,8 +425,8 @@ void OnCleanActFn()
 // 快速创建包覆面
 void OnRapidCreatActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -459,8 +471,8 @@ void OnRapidCreatActFn()
 // 从边界创建
 void OnCreateByEdgeActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -501,8 +513,8 @@ void OnCreateByEdgeActFn()
 // 从边界(链)创建
 void OnCreateByChainActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -534,7 +546,26 @@ void OnCreateByChainActFn()
 		arrSelEdge.push_back(arrSelEdge[0]);
 	nFeatID[0] = CreateFromToCopyCurve(pMdl, arrSelEdge[0], arrSelEdge[1], itemCurve[0]);
 	if (nFeatID[0] <= 0)
+	{
+		MessageBox(NULL, L"第一条边链创建失败，详见模型特征树！", L"提示", MB_OK);
 		return;
+	}
+
+	// 是否反向
+	InvalidateDrawing();
+	if (MessageBox(NULL, L"是否反向？", L"提示", MB_YESNO|MB_ICONQUESTION) == IDYES)
+	{
+		int nfeatArray[] = {nFeatID[0]};
+		ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
+		ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
+		nFeatID[0] = CreateFromToCopyCurve(pMdl, arrSelEdge[1], arrSelEdge[0], itemCurve[0]);
+		if (nFeatID[0] <= 0)
+		{
+			MessageBox(NULL, L"第一条边链创建失败，详见模型特征树！", L"提示", MB_OK);
+			return;
+		}
+		InvalidateDrawing();
+	}
 
 	// 第3步：选取面上的两条边
 	ShowMessageTip(L"Tips.选取同一个面上的两条边创建第二条边链...");
@@ -550,7 +581,26 @@ void OnCreateByChainActFn()
 		arrSelEdge2.push_back(arrSelEdge2[0]);
 	nFeatID[1] = CreateFromToCopyCurve(pMdl, arrSelEdge2[0], arrSelEdge2[1], itemCurve[1]);
 	if (nFeatID[1] <= 0)
+	{
+		MessageBox(NULL, L"第二条边链创建失败，详见模型特征树！", L"提示", MB_OK);
 		return;
+	}
+
+	// 是否反向
+	InvalidateDrawing();
+	if (MessageBox(NULL, L"是否反向？", L"提示", MB_YESNO|MB_ICONQUESTION) == IDYES)
+	{
+		int nfeatArray[] = {nFeatID[1]};
+		ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
+		ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
+		nFeatID[1] = CreateFromToCopyCurve(pMdl, arrSelEdge2[1], arrSelEdge2[0], itemCurve[1]);
+		if (nFeatID[1] <= 0)
+		{
+			MessageBox(NULL, L"第二条边链创建失败，详见模型特征树！", L"提示", MB_OK);
+			return;
+		}
+		InvalidateDrawing();
+	}
 
 	// 第5步：创建边界混合面
 	ProSelection selCurve[2];
@@ -622,8 +672,8 @@ void OnCreateByChainActFn()
 // 从指定区域创建
 void OnCreateBySketchActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -661,8 +711,8 @@ void OnCreateBySketchActFn()
 // 环边裁剪
 void OnTrimByEdgeActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -789,8 +839,8 @@ void OnTrimByEdgeActFn()
 // 草绘裁剪
 void OnTrimBySketchActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -916,6 +966,32 @@ void OnTrimBySketchActFn()
 					{
 						// 创建成功，记录特征ID
 						arrFeatID.push_back(nFeatID);
+
+						// 第8步：提示是否反向或继续修剪
+						CDlgConfirm dlg;
+						while (1)
+						{
+							int nResult = (int)dlg.DoModal();
+							if (nResult == IDOK)
+							{
+								break;
+							}
+							else if (nResult == IDRETRY) 
+							{
+								// 修改裁剪方向
+								ProFeature feat;
+								feat.id = nFeatID;
+								feat.type = PRO_FEATURE;
+								feat.owner = pMdl;
+								ReverseTrimDirection(feat);
+							}
+							else
+							{
+								InvalidateDrawing();
+								ProMessageClear();
+								return;
+							}
+						}
 					}
 				}
 			}
@@ -937,8 +1013,8 @@ void OnTrimBySketchActFn()
 // 拼接包覆面
 void OnMergeManualActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -983,8 +1059,8 @@ void OnMergeManualActFn()
 // 拼接（智能选取）
 void OnMergeAutoActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1058,8 +1134,8 @@ void OnMergeAutoActFn()
 // 整体放量
 void OnOffsetGeneralActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1108,8 +1184,8 @@ void OnOffsetGeneralActFn()
 // 单侧放量
 void OnOffsetSingleActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1166,8 +1242,8 @@ void OnOffsetSingleActFn()
 // 导出至STL
 void OnExportSTLActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1226,8 +1302,8 @@ void OnExportSTLActFn()
 // 导出至STP
 void OnExportSTPActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1249,8 +1325,8 @@ void OnExportSTPActFn()
 // 底面切除
 void OnBottomCutActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1279,6 +1355,7 @@ void OnBottomCutActFn()
 		status = ProModelitemHide(&itemQuilt);
 		
 		// 第4步：选择底面
+		ShowMessageTip(L"Tips.选择需要平齐的底面...");
 		vector<ProSelection> arrSelSrf;
 		if (SelectObject(arrSelSrf, "surface"))
 		{
@@ -1289,10 +1366,8 @@ void OnBottomCutActFn()
 			int nDatumFeatID = CreateDatumPlane(pMdl, arrSelSrf[0], itemPlane);
 			if (nDatumFeatID > 0)
 			{
-				ProAsmcomppath comppath;
-				status = ProSelectionAsmcomppathGet(arrSelSrf[0], &comppath);
 				ProSelection selRef;
-				status = ProSelectionAlloc(&comppath, &itemPlane, &selRef);
+				status = ProSelectionAlloc(NULL, &itemPlane, &selRef);
 				int nFeatID = TrimSurface(pMdl, selQlt, selRef, 1);
 				if (nFeatID > 0)
 				{
@@ -1332,8 +1407,8 @@ void OnBottomCutActFn()
 // 底面延伸
 void OnBottomExpandActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();
@@ -1373,8 +1448,8 @@ void OnBottomExpandActFn()
 // 生成包覆体
 void OnCreateBodyActFn()
 {
-	if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
-		return;
+	/*if (!QuickCheckValidLicense(SMART_PROFESSIONAL))
+		return;*/
 
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 	DestroyAllDialog();

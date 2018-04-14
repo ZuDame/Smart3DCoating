@@ -16,32 +16,46 @@
 
 //===================================================================================================
 
-// 面加厚信息
-typedef struct __tagSurfThickData
+// 面组中子面信息
+typedef struct __tagQltfaceData
 {
-	ProSurface surf;
 	int nSurfID;
-	double dThick;
+	ProSurface qltface;
+	vector<int> arrNeighborface;	// 相邻子面的ID
 
-	__tagSurfThickData()
+	double dOffset;					// 偏移距离
+	ProModelitem itemOffsetQlt;		// 偏离后的面(面组)
+	Pro3dPnt pntOnOffset;				// 偏离面上的点，用于裁剪时判断裁剪方向
+
+	__tagQltfaceData()
 	{
-		surf = NULL;
-		nSurfID = 0;
-		dThick = 0.0;
+		nSurfID = -1;
+		qltface = NULL;
+		dOffset = 0.0;
 	}
-	__tagSurfThickData& operator=(const __tagSurfThickData &std)
+	__tagQltfaceData& operator=(const __tagQltfaceData &qfd)
 	{
-		if (&std == this)
+		if (&qfd == this)
 			return *this;
 
-		surf = std.surf;
-		nSurfID = std.nSurfID;
-		dThick = std.dThick;
+		nSurfID = qfd.nSurfID;
+		qltface = qfd.qltface;
+		dOffset = qfd.dOffset;
+		arrNeighborface = qfd.arrNeighborface;
+		itemOffsetQlt.id = qfd.itemOffsetQlt.id;
+		itemOffsetQlt.type = qfd.itemOffsetQlt.type;
+		itemOffsetQlt.owner = qfd.itemOffsetQlt.owner;
+		for (int i=0; i<3; i++)
+			pntOnOffset[i] = qfd.pntOnOffset[i];
 		return *this;
 	}
-}SurfThickData;
+}QltfaceData;
 
-typedef vector<SurfThickData> SurfThickDataArray;
+typedef vector<QltfaceData> QltfaceDataArray;
+
+typedef map<int, int> QltfaceDataIndexMap;
+
+
 
 // 面组中需单独偏离的子面信息
 typedef struct __tagQuiltSubData
@@ -88,9 +102,11 @@ public:
 
 	CListBox m_listSurf;
 
-	ProGeomitem m_itemQuilt;
-	SurfThickDataArray m_arrQuiltThickData;
 	ProMdl m_pAsm;
+	ProGeomitem m_itemQuiltBase;	// 包覆面
+
+	QltfaceDataArray m_arrQltfaceData;
+	QltfaceDataIndexMap m_mapQltfaceIndex;
 	double m_dMaxThick;
 
 protected:

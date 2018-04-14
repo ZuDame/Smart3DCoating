@@ -44,6 +44,8 @@
 #include <ProAxis.h>
 #include <ProCsys.h>
 
+#include <ProIntfimport.h >
+
 // 外观
 #include <ProColor.h>
 #include <prodev_dgm.h>
@@ -98,6 +100,9 @@ ProType GetSelectionType(ProSelection pSel);
 BOOL SelectObject(/*output*/vector<ProSelection> &arrSelObj, 
 				  /*input*/char *pSelOpt, /*input*/int nCount = 1, /*input*/ProSelection* pArrSelInit = NULL);
 
+// 加载STEP模型
+BOOL LoadStep(const CString& strFilePath, ProMdl& pMdl);
+
 //===================================================================================================
 
 // 判断向量平行
@@ -140,6 +145,9 @@ ProError OneSurfaceGetAction(ProSurface surface, ProError status, ProAppData pDa
 
 // 获取模型的所有面组
 ProError SolidQuiltsGetAction(ProQuilt quilt, ProError status, ProAppData pData);
+
+// 获取特征中的所有尺寸
+ProError FeatureDimensionGetAction(ProDimension* dimension, ProError status, ProAppData pData);
 
 //===================================================================================================
 
@@ -261,6 +269,9 @@ int CreatePublishGeom(ProMdl pMdl, ProSelection selQuilt);
 // 创建复制几何
 int CreateCopyGeom(ProMdl pMdl, ProSelection selRefMdl, ProSelection selPubFeat, ProModelitem& itemQuilt);
 
+// 创建相交特征
+int CreateIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2, ProModelitem& itemCurve);
+
 //===================================================================================================
 
 BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge, 
@@ -278,5 +289,17 @@ void GetNeighborSurfInQuilt(ProMdl pMdl, ProSurface surf, ProQuilt quilt, vector
 // 测量两个几何对象之间的距离
 BOOL MeasureDistance(ProGeomitem& item1, ProGeomitem& item2,
 					 double& dDistance, Pro3dPnt& pnt1, Pro3dPnt& pnt2);
+
+// 含单个面的面组转换为面
+BOOL QuiltToSurf(ProModelitem itemQuilt, ProModelitem& itemSurf);
+
+// 通过延展使两个面相交
+BOOL ExtendToInterSect(ProMdl pMdl, ProModelitem& itemQuilt1, ProModelitem& itemQuilt2, int& nFeatID1, int& nFeatID2);
+
+// 获取面上的一个点
+void GetPointOnSurface(ProMdl pMdl, ProSurface surf, Pro3dPnt& pntOnSurf);
+
+// 判断点是否在面内
+BOOL IsPntInsideSurf(ProMdl pMdl, ProSurface surf, Pro3dPnt pntOnSurf);
 
 #endif
