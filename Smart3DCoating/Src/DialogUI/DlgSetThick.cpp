@@ -167,7 +167,13 @@ void CDlgSetThick::OnOK()
 						// 以相交线进行裁剪，裁剪时判断基准点是否在裁剪后的面上，如果不在，反向
 						ProSelection selCurve;
 						ProSelectionAlloc(NULL, &itemCurve, &selCurve);
-						int nFeatTrim1 = TrimSurfaceByCurve(pMdlPart, selOffsetQlt, selCurve, 0);
+
+						ProModelitem itemCopyContour1;
+						int nFeatCopyContour1 = CreateContourCurve(pMdlPart, selOffsetQlt, itemCopyContour1);
+						ProSelection selCopyContour1;
+						ProSelectionAlloc(NULL, &itemCopyContour1, &selCopyContour1);
+
+						int nFeatTrim1 = TrimSurfWithCurveByUDF(pMdlPart, selOffsetQlt, selCurve, selCopyContour1, 1);
 						if (nFeatTrim1 > 0)
 						{
 							featTrim.id = nFeatTrim1;
@@ -176,8 +182,13 @@ void CDlgSetThick::OnOK()
 								ReverseTrimDirection(featTrim);
 							}
 						}
+
+						ProModelitem itemCopyContour2;
+						int nFeatCopyContour2 = CreateContourCurve(pMdlPart, selNeighborQlt, itemCopyContour2);
+						ProSelection selCopyContour2;
+						ProSelectionAlloc(NULL, &itemCopyContour2, &selCopyContour2);
 						
-						int nFeatTrim2 = TrimSurfaceByCurve(pMdlPart, selNeighborQlt, selCurve, 0);
+						int nFeatTrim2 = TrimSurfWithCurveByUDF(pMdlPart, selNeighborQlt, selCurve, selCopyContour2, 1);
 						if (nFeatTrim2 > 0)
 						{
 							ProModelitem itemNerighborSurf;
@@ -190,6 +201,9 @@ void CDlgSetThick::OnOK()
 								ReverseTrimDirection(featTrim);
 							}
 						}
+
+						ProModelitemHide(&itemCopyContour1);
+						ProModelitemHide(&itemCopyContour2);
 					}
 				}
 			}
@@ -219,7 +233,9 @@ void CDlgSetThick::OnOK()
 			ProSelectionAlloc(NULL, &m_arrQltfaceData[arrMergeIndex[i]].itemOffsetQlt, &selOffsetQlt);
 			arrSelMergeQuilt.push_back(selOffsetQlt);
 		}
-		MergeSurfs(pMdlPart, arrSelMergeQuilt);
+
+		ProFeature featMerge;
+		MergeSurfs(pMdlPart, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
 
 		// 第五步：整体按最大偏离值进行加厚
 		ProSelection selQuiltBase;

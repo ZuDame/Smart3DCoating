@@ -207,7 +207,7 @@ int CreateBlendSurfByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selCurve1
 
 // 创建合并特征
 int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, 
-			   /*input*/ProSrfMrgType mrgType = PRO_SRF_MRG_INTSCT);
+			   /*input*/ProSrfMrgType mrgType, ProFeature& feat);
 
 // 修改合并方向
 BOOL ChangeMergeDir(ProFeature featMerge, int nIndex);
@@ -272,9 +272,16 @@ int CreateCopyGeom(ProMdl pMdl, ProSelection selRefMdl, ProSelection selPubFeat,
 // 创建相交特征
 int CreateIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2, ProModelitem& itemCurve);
 
+// 创建复制曲线（面的外环）
+int CreateContourCurve(ProMdl pMdl, ProSelection selQuilt, ProModelitem& itemCompCurve);
+
+// 裁剪面 by 曲线（UDF方式）
+int TrimSurfWithCurveByUDF(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
+					   /*input*/ProSelection selTrimCurve, /*input*/ProSelection selContourCurve, int nMode);
+
 //===================================================================================================
 
-BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge, 
+BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge,
 						   ProSurface &pNeighborSurf);											// 根据公共边获取邻面
 
 // 检查两个Quilt是否相邻

@@ -1103,7 +1103,8 @@ int CreateSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*out
 					// 将复制面进行合并
 					if (i != 0)
 					{
-						int nMergeID = MergeSurfs(pMdl, arrSelQuilts, PRO_SRF_MRG_JOIN);
+						ProFeature featMerge;
+						int nMergeID = MergeSurfs(pMdl, arrSelQuilts, PRO_SRF_MRG_JOIN, featMerge);
 						SAFE_DELETE_SELECTION(arrSelQuilts[1]);
 						arrQuilts.pop_back();
 						if (nMergeID > 0)
@@ -1840,7 +1841,7 @@ int CreateBlendSurfByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selCurve1
 
 // 创建合并特征
 int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, 
-			   /*input*/ProSrfMrgType mrgType/*= PRO_SRF_MRG_INTSCT*/)
+			   /*input*/ProSrfMrgType mrgType, ProFeature& feat)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -1917,7 +1918,6 @@ int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSel
 		status = ProValueDataSet(valueMrgType, &valdataMrgType);
 		status = ProElementValueSet(elemMrgType, valueMrgType);
 	}
-	ProFeature feat;
 	if (CreateFeature(pMdl, elemRoot, feat))
 	{
 		if (nCount == 2)
@@ -3186,29 +3186,53 @@ BOOL CheckTwoQuiltNeighbor(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2, ProEdg
 			MeasureDistance(itemSurf1, itemSurf2, dDis, pnt1, pnt2);
 			if (DEQUAL(dDis, 0.0))
 			{
-				vector<ProContour> arrExContour;
-				ProSurfaceContourVisit(arrQltSrfs2[i], SurfaceExtContoursGetAction, NULL, &arrExContour);
-
-				for (int j=0; j<arrExContour.size(); j++)
+				vector<ProSelection> arrSel;
+				ProModelitem itemQuilt1, itemQuilt2;
+				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt1, &itemQuilt1);
+				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt2, &itemQuilt2);
+				ProSelection selQuilt1 = NULL, selQuilt2 = NULL;
+				ProSelectionAlloc(NULL, &itemQuilt1, &selQuilt1);
+				ProSelectionAlloc(NULL, &itemQuilt2, &selQuilt2);
+				arrSel.push_back(selQuilt1);
+				arrSel.push_back(selQuilt2);
+				ProFeature featMerge;
+				int nFeatMerge = MergeSurfs(pMdl, arrSel, PRO_SRF_MRG_INTSCT, featMerge);
+				if (featMerge.id > 0)
 				{
-					vector<ProEdge> arrExEdges;
-					status = ProContourEdgeVisit(arrQltSrfs2[i], arrExContour[j], ContourEdgesGetAction, NULL, &arrExEdges);
-
-					for (int k=0; k<arrExEdges.size(); k++)
-					{
-						// 检查边的端点是否都在平面内
-						for (int param=0; param<3; param++)
-						{
-							Pro3dPnt pntVertex;
-							ProEdgeXyzdataEval(arrExEdges[k], param/2.0, pntVertex, NULL, NULL, NULL);
-							ProBoolean bInSurface;
-							ProPoint3dOnsurfaceFind(pntVertex, arrQltSrfs1[i], &bInSurface, NULL);
-							if (bInSurface == PRO_B_FALSE)
-								return TRUE;
-						}
-					}
+					int nfeatArray[] = {featMerge.id};
+					ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
+					ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
 				}
+
+				if (nFeatMerge>0)
+					return TRUE;
+
 				return FALSE;
+
+				// 判断两个quilt能否合并，如果合并失败，则不相邻，同时删除已创建的合并特征
+				//vector<ProContour> arrExContour;
+				//ProSurfaceContourVisit(arrQltSrfs2[i], SurfaceExtContoursGetAction, NULL, &arrExContour);
+
+				//for (int j=0; j<arrExContour.size(); j++)
+				//{
+				//	vector<ProEdge> arrExEdges;
+				//	status = ProContourEdgeVisit(arrQltSrfs2[i], arrExContour[j], ContourEdgesGetAction, NULL, &arrExEdges);
+
+				//	for (int k=0; k<arrExEdges.size(); k++)
+				//	{
+				//		// 检查边的端点是否都在平面内
+				//		for (int param=0; param<3; param++)
+				//		{
+				//			Pro3dPnt pntVertex;
+				//			ProEdgeXyzdataEval(arrExEdges[k], param/2.0, pntVertex, NULL, NULL, NULL);
+				//			ProBoolean bInSurface;
+				//			ProPoint3dOnsurfaceFind(pntVertex, arrQltSrfs1[i], &bInSurface, NULL);
+				//			if (bInSurface == PRO_B_FALSE)
+				//				return TRUE;
+				//		}
+				//	}
+				//}
+				//return FALSE;
 			}
 		}
 	}
@@ -3909,4 +3933,210 @@ BOOL IsPntInsideSurf(ProMdl pMdl, ProSurface surf, Pro3dPnt pntOnSurf)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+// 创建复制曲线（面的外环）
+int CreateContourCurve(ProMdl pMdl, ProSelection selQuilt, ProModelitem& itemCompCurve)
+{
+	int nRet = ER_CREATE_FAIL;
+	ProError status;
+
+	// 检查输入
+	if (GetSelectionType(selQuilt) != PRO_QUILT)
+		return ER_BAD_INPUT;
+
+	// 获取面的外环的一条组成边
+	ProModelitem itemQuilt;
+	status = ProSelectionModelitemGet(selQuilt, &itemQuilt);
+	ProQuilt quilt;
+	ProGeomitemToQuilt(&itemQuilt, &quilt);
+	vector<ProSurface> arrSurfaceInQuilt;
+	ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrSurfaceInQuilt);
+	vector<ProContour> arrExContour;
+	status = ProSurfaceContourVisit(arrSurfaceInQuilt[0], SurfaceExtContoursGetAction, NULL, &arrExContour);
+	vector<ProEdge> arrEdges;
+	status = ProContourEdgeVisit(arrSurfaceInQuilt[0], arrExContour[0], ContourEdgesGetAction, NULL, &arrEdges);
+	ProModelitem itemEdge;
+	status = ProEdgeToGeomitem(ProMdlToSolid(pMdl), arrEdges[0], &itemEdge);
+	ProSelection selEdge;
+	status = ProSelectionAlloc(NULL, &itemEdge, &selEdge);
+
+	// 检查UDF文件
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\copycontour.gph";
+	if (IsFileExist(strUDFPath))
+	{
+		ProBoolean bRefExt = PRO_B_FALSE;
+		if (selQuilt->assembly_ptr != NULL)
+			bRefExt = PRO_B_TRUE;
+
+		ProUdfdata udfdata;
+		status = ProUdfdataAlloc(&udfdata);
+		// 设置UDF路径
+		ProPath pathUDF;
+		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+		status = ProUdfdataPathSet(udfdata, pathUDF);
+		// 获取参照项
+		ProUdfRequiredRef* parrRef = NULL;
+		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+		ProLine prompt[2];
+		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
+		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
+		// 设置参照
+		ProUdfreference refUDF[2];
+		status = ProUdfreferenceAlloc(prompt[0], selQuilt, bRefExt, &refUDF[0]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
+		status = ProUdfreferenceAlloc(prompt[1], selEdge, bRefExt, &refUDF[1]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
+
+		// 创建UDF特征
+		ProGroup udf;
+		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			ProFeature* pFeatArray = NULL;
+			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+			if (status == PRO_TK_NO_ERROR)
+			{
+				// 获取特征中的曲线
+				vector<ProModelitem> arrItemCurve;
+				status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_CURVE, FeatureGeomsGetAction, NULL, &arrItemCurve);
+				for (int i=0; i<arrItemCurve.size(); i++)
+				{
+					ProCurve pCurveTemp;
+					ProGeomitemToCurve(&arrItemCurve[i], &pCurveTemp);
+					ProEnttype curveType;
+					ProCurveTypeGet(pCurveTemp, &curveType);
+					if (curveType == PRO_ENT_CMP_CRV)
+					{
+						itemCompCurve.id = arrItemCurve[i].id;
+						itemCompCurve.owner = arrItemCurve[i].owner;
+						itemCompCurve.type = arrItemCurve[i].type;
+						break;
+					}
+				}
+
+				nRet = pFeatArray[1].id;
+				status = ProGroupUngroup(&udf);
+				status = ProArrayFree((ProArray*)&pFeatArray);
+			}
+		}
+		else
+		{
+			nRet = ER_INVALID_UDF;
+		}
+
+		status = ProUdfreferenceFree(refUDF[0]);
+		status = ProUdfreferenceFree(refUDF[1]);
+	}
+	else
+		nRet = ER_INVALID_UDF;
+	return nRet;
+}
+
+// 裁剪面 by 曲线（UDF方式）
+int TrimSurfWithCurveByUDF(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
+						   /*input*/ProSelection selTrimCurve, /*input*/ProSelection selContourCurve, int nMode)
+{
+	int nRet = ER_CREATE_FAIL;
+	ProError status;
+
+	// 检查输入
+	if (GetSelectionType(selQuilt) != PRO_QUILT && 
+		GetSelectionType(selTrimCurve) != PRO_CURVE && 
+		GetSelectionType(selContourCurve) != PRO_CURVE)
+		return ER_BAD_INPUT;
+
+	// 获取曲线的起点和终点
+	ProModelitem itemTrimCurve;
+	ProSelectionModelitemGet(selTrimCurve, &itemTrimCurve);
+
+	// 获取边的顶点
+	ProModelitem itemPntStart, itemPntEnd;
+	itemPntStart.id = itemPntEnd.id = itemTrimCurve.id;
+	itemPntStart.type = PRO_CRV_START;
+	itemPntEnd.type = PRO_CRV_END;
+	itemPntStart.owner = itemPntEnd.owner = itemTrimCurve.owner;
+	ProSelection selPnt1, selPnt2;
+
+	// 检查UDF文件
+	CString strUDFPath;
+	switch (nMode)
+	{
+	default:
+	case 1:
+		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve.gph";
+		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt2);
+		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt1);
+		break;
+	case 2:
+		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve2.gph";
+		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt1);
+		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt2);
+		break;
+	}
+
+	if (IsFileExist(strUDFPath))
+	{
+		ProBoolean bRefExt = PRO_B_FALSE;
+		if (selQuilt->assembly_ptr != NULL)
+			bRefExt = PRO_B_TRUE;
+
+		ProUdfdata udfdata;
+		status = ProUdfdataAlloc(&udfdata);
+		// 设置UDF路径
+		ProPath pathUDF;
+		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+		status = ProUdfdataPathSet(udfdata, pathUDF);
+		// 获取参照项
+		ProUdfRequiredRef* parrRef = NULL;
+		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+		ProLine prompt[5];
+		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
+		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
+		status = ProUdfrequiredrefPromptGet(parrRef[2], prompt[2]);
+		status = ProUdfrequiredrefPromptGet(parrRef[3], prompt[3]);
+		status = ProUdfrequiredrefPromptGet(parrRef[4], prompt[4]);
+		// 设置参照
+		ProUdfreference refUDF[5];
+		status = ProUdfreferenceAlloc(prompt[0], selQuilt, bRefExt, &refUDF[0]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
+		status = ProUdfreferenceAlloc(prompt[1], selTrimCurve, bRefExt, &refUDF[1]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
+		status = ProUdfreferenceAlloc(prompt[2], selPnt1, bRefExt, &refUDF[2]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[2]);
+		status = ProUdfreferenceAlloc(prompt[3], selContourCurve, bRefExt, &refUDF[3]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[3]);
+		status = ProUdfreferenceAlloc(prompt[4], selPnt2, bRefExt, &refUDF[4]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[4]);
+
+		// 创建UDF特征
+		ProGroup udf;
+		ProUdfCreateOption opt[] = {PROUDFOPT_FIX_MODEL_UI_OFF};
+		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, opt, 1, &udf);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			ProFeature* pFeatArray = NULL;
+			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+			if (status == PRO_TK_NO_ERROR)
+			{
+				nRet = pFeatArray[1].id;
+				status = ProGroupUngroup(&udf);
+				status = ProArrayFree((ProArray*)&pFeatArray);
+			}
+		}
+		else
+		{
+			if (nMode < 2)
+				nRet = TrimSurfWithCurveByUDF(pMdl, selQuilt, selTrimCurve, selContourCurve, nMode+1);
+		}
+
+		status = ProUdfreferenceFree(refUDF[0]);
+		status = ProUdfreferenceFree(refUDF[1]);
+		status = ProUdfreferenceFree(refUDF[2]);
+		status = ProUdfreferenceFree(refUDF[3]);
+		status = ProUdfreferenceFree(refUDF[4]);
+	}
+	else
+		nRet = ER_INVALID_UDF;
+	return nRet;
 }

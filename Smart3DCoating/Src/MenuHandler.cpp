@@ -932,7 +932,7 @@ void OnTrimBySketchActFn()
 			
 			if (!bGetQuilt)
 			{
-				ShowMessageTip(L"Tips.无法获取所选草绘的放置面，请手动选择需裁剪的面...");
+				ShowMessageTip(L"Tips.草绘的放置面非可裁剪面，请手动选择需裁剪的面...");
 				// 手动选取待裁剪的面
 				vector<ProSelection> arrSelSrf;
 				if (SelectObject(arrSelSrf, "dtmqlt"))
@@ -1034,7 +1034,8 @@ void OnMergeManualActFn()
 	if (SelectObject(arrSelQuilts, "dtmqlt", MAX_SELECTION))
 	{
 		// 第3步：执行拼接
-		int nFeatID = MergeSurfs(pMdl, arrSelQuilts);
+		ProFeature featMerge;
+		int nFeatID = MergeSurfs(pMdl, arrSelQuilts, PRO_SRF_MRG_INTSCT, featMerge);
 		if (nFeatID < 0)
 		{
 			MessageBox(NULL, L"拼接失败，详见模型特征树！", L"提示", MB_OK);
@@ -1124,7 +1125,8 @@ void OnMergeAutoActFn()
 			arrSelMergeQuilt.push_back(selQuilt);
 		}
 		
-		MergeSurfs(pMdl, arrSelMergeQuilt);
+		ProFeature featMerge;
+		MergeSurfs(pMdl, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
 	}
 
 	InvalidateDrawing();
