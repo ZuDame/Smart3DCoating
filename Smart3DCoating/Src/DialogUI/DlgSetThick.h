@@ -108,6 +108,7 @@ public:
 	QltfaceDataArray m_arrQltfaceData;
 	QltfaceDataIndexMap m_mapQltfaceIndex;
 	double m_dMaxThick;
+	int m_nOffsetOrient;		// 向内加厚还是向外加厚				
 
 protected:
 	//{{AFX_VIRTUAL(CDlgSetThick)	
@@ -119,6 +120,9 @@ protected:
 
 public:
 	void InitSurfData(ProMdl pAsm, ProSelection selQuilt, double dThick);
+
+	// 检查裁剪后的面与邻面是否继续相交
+	BOOL CheckIntersectAfterTrim(QltfaceData& dataQuilt);
 
 protected:
 	//{{AFX_MSG(CDlgSetThick)

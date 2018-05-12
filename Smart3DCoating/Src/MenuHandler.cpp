@@ -496,7 +496,7 @@ void OnCreateByEdgeActFn()
 			break;
 		// 第3步：创建面
 		ProModelitem itemQlt;
-		if (CreateBlendSurf(pMdl, arrSelEdge[0], arrSelEdge[1], itemQlt) > 0)
+		if (CreateSurfByTwoEdge(pMdl, arrSelEdge[0], arrSelEdge[1], itemQlt) > 0)
 		{
 			SetSurfColor(itemQlt, 154, 205, 7);
 		}
@@ -544,7 +544,7 @@ void OnCreateByChainActFn()
 	int nSelCount = (int)arrSelEdge.size();
 	if (nSelCount == 1)
 		arrSelEdge.push_back(arrSelEdge[0]);
-	nFeatID[0] = CreateFromToCopyCurve(pMdl, arrSelEdge[0], arrSelEdge[1], itemCurve[0]);
+	nFeatID[0] = CreateFromToCurveByCopy(pMdl, arrSelEdge[0], arrSelEdge[1], itemCurve[0]);
 	if (nFeatID[0] <= 0)
 	{
 		MessageBox(NULL, L"第一条边链创建失败，详见模型特征树！", L"提示", MB_OK);
@@ -558,7 +558,7 @@ void OnCreateByChainActFn()
 		int nfeatArray[] = {nFeatID[0]};
 		ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
 		ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
-		nFeatID[0] = CreateFromToCopyCurve(pMdl, arrSelEdge[1], arrSelEdge[0], itemCurve[0]);
+		nFeatID[0] = CreateFromToCurveByCopy(pMdl, arrSelEdge[1], arrSelEdge[0], itemCurve[0]);
 		if (nFeatID[0] <= 0)
 		{
 			MessageBox(NULL, L"第一条边链创建失败，详见模型特征树！", L"提示", MB_OK);
@@ -579,7 +579,7 @@ void OnCreateByChainActFn()
 	int nSelCount2 = (int)arrSelEdge2.size();
 	if (nSelCount2 == 1)
 		arrSelEdge2.push_back(arrSelEdge2[0]);
-	nFeatID[1] = CreateFromToCopyCurve(pMdl, arrSelEdge2[0], arrSelEdge2[1], itemCurve[1]);
+	nFeatID[1] = CreateFromToCurveByCopy(pMdl, arrSelEdge2[0], arrSelEdge2[1], itemCurve[1]);
 	if (nFeatID[1] <= 0)
 	{
 		MessageBox(NULL, L"第二条边链创建失败，详见模型特征树！", L"提示", MB_OK);
@@ -593,7 +593,7 @@ void OnCreateByChainActFn()
 		int nfeatArray[] = {nFeatID[1]};
 		ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
 		ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
-		nFeatID[1] = CreateFromToCopyCurve(pMdl, arrSelEdge2[1], arrSelEdge2[0], itemCurve[1]);
+		nFeatID[1] = CreateFromToCurveByCopy(pMdl, arrSelEdge2[1], arrSelEdge2[0], itemCurve[1]);
 		if (nFeatID[1] <= 0)
 		{
 			MessageBox(NULL, L"第二条边链创建失败，详见模型特征树！", L"提示", MB_OK);
@@ -607,7 +607,7 @@ void OnCreateByChainActFn()
 	ProSelectionAlloc(NULL, &itemCurve[0], &selCurve[0]);
 	ProSelectionAlloc(NULL, &itemCurve[1], &selCurve[1]);
 	ProModelitem itemQuilt;
-	nFeatID[2] = CreateBlendSurfByCurve(pMdl, selCurve[0], selCurve[1], itemQuilt);
+	nFeatID[2] = CreateSurfByTwoCurve(pMdl, selCurve[0], selCurve[1], itemQuilt);
 	if (nFeatID[2] > 0)
 	{
 		SetSurfColor(itemQuilt, 154, 205, 7);
@@ -697,7 +697,7 @@ void OnCreateBySketchActFn()
 		// ...待补充
 
 		ProModelitem itemQuilt;
-		int nFeatID = CreateFillSurfBySketch(pMdl, arrSelFeat[0], itemQuilt);
+		int nFeatID = CreateSurfByFillSketch(pMdl, arrSelFeat[0], itemQuilt);
 		if (nFeatID > 0)
 		{
 			SetSurfColor(itemQuilt, 154, 205, 7);
@@ -788,7 +788,7 @@ void OnTrimByEdgeActFn()
 			ProGeomitemdataFree(&psrfdata);*/
 			
 			// 第7步：修剪曲面
-			int nFeatID = TrimSurface(pMdl, selSrf, arrSelEdge, nEdgeDir);
+			int nFeatID = TrimQuiltByEdgeGroup(pMdl, selSrf, arrSelEdge, nEdgeDir);
 			ProModelitemUnhide(&itemQuilt);
 			SAFE_DELETE_PROARRAY(pArrSelInit);
 			if (nFeatID > 0)
@@ -961,7 +961,7 @@ void OnTrimBySketchActFn()
 					// 进行裁剪
 					ProSelection selCurve;
 					status = ProSelectionAlloc(&acomppath, &arrItemCurves[i], &selCurve);
-					int nFeatID = TrimSurfaceByCurve(pMdl, selQuilt, selCurve, PRO_EDGE_SAME_DIRECTION);
+					int nFeatID = TrimQuiltByCurve(pMdl, selQuilt, selCurve, PRO_EDGE_SAME_DIRECTION);
 					if (nFeatID > 0)
 					{
 						// 创建成功，记录特征ID
@@ -1035,7 +1035,7 @@ void OnMergeManualActFn()
 	{
 		// 第3步：执行拼接
 		ProFeature featMerge;
-		int nFeatID = MergeSurfs(pMdl, arrSelQuilts, PRO_SRF_MRG_INTSCT, featMerge);
+		int nFeatID = MergeQuilts(pMdl, arrSelQuilts, PRO_SRF_MRG_INTSCT, featMerge);
 		if (nFeatID < 0)
 		{
 			MessageBox(NULL, L"拼接失败，详见模型特征树！", L"提示", MB_OK);
@@ -1104,8 +1104,7 @@ void OnMergeAutoActFn()
 					arrQuilt.erase(arrQuilt.begin()+j);
 					continue;
 				}
-				ProEdge edge1, edge2;
-				if (CheckTwoQuiltNeighbor(pMdl, quiltCurr, arrQuilt[j], edge1, edge2))
+				if (CheckTwoQuiltNeighbor(pMdl, quiltCurr, arrQuilt[j]))
 				{
 					arrQuiltMerge.push_back(arrQuilt[j]);
 					arrQuilt.erase(arrQuilt.begin()+j);
@@ -1126,7 +1125,7 @@ void OnMergeAutoActFn()
 		}
 		
 		ProFeature featMerge;
-		MergeSurfs(pMdl, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
+		MergeQuilts(pMdl, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
 	}
 
 	InvalidateDrawing();
@@ -1222,7 +1221,7 @@ void OnOffsetSingleActFn()
 				dOffset = dOffset*(-1);
 			ProGeomitemdataFree(&psrfdata);
 			// 创建偏移特征
-			int nOffsetID = OffsetSingleSurf(pMdl, arrSelQlt[0], dOffset);
+			int nOffsetID = OffsetSurfaceWithSide(pMdl, arrSelQlt[0], dOffset);
 			if (nOffsetID > 0)
 			{
 				// 修改面颜色
@@ -1370,7 +1369,7 @@ void OnBottomCutActFn()
 			{
 				ProSelection selRef;
 				status = ProSelectionAlloc(NULL, &itemPlane, &selRef);
-				int nFeatID = TrimSurface(pMdl, selQlt, selRef, 1);
+				int nFeatID = TrimSurfaceBySurf(pMdl, selQlt, selRef, 1);
 				if (nFeatID > 0)
 				{
 					// 第8步：提示是否反向或继续修剪
@@ -1437,7 +1436,7 @@ void OnBottomExpandActFn()
 		vector<ProSelection> arrSelBottom;
 		if (SelectObject(arrSelBottom, "surface"))
 		{
-			if (ExtendQuiltToSrf(pMdl, selQlt, arrSelBottom[0]) < 0)
+			if (ExtendQuiltToSurf(pMdl, selQlt, arrSelBottom[0]) < 0)
 			{
 				MessageBox(NULL, L"处理失败，详见模型特征树！", L"提示", MB_OK);
 			}
@@ -1483,7 +1482,7 @@ void OnCreateBodyActFn()
 	{
 		// 输入整体加厚值
 		double dThickValue;
-		ShowMessageTip(L"指定厚度值，不能为0，但可以为负值：");
+		ShowMessageTip(L"指定厚度值，不能为0，负值表示向内加厚：");
 		if (ProMessageDoubleRead(NULL, &dThickValue) == PRO_TK_NO_ERROR)
 		{
 			// 创建发布几何

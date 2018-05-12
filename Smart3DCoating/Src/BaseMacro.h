@@ -33,6 +33,7 @@
 #define DFE_DELTA 0.001
 #define DFE_ZERO 0.000001
 #define DEQUAL(x, y) (fabs((x) - (y)) <= DFE_ZERO)
+#define ISNEAR(x, y) (fabs((x) - (y)) <= DFE_DELTA)
 
 // Ô²ÖÜÂÊ
 #define DOCTOR_PI 3.14159265359

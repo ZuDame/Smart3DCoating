@@ -19,6 +19,7 @@
 #endif
 
 //===================================================================================================
+// （通用基础函数）
 
 // 激活当前窗口
 ProError ActivateCurrentPreWindow()
@@ -153,6 +154,23 @@ ProType GetSelectionType(ProSelection pSel)
 	return type;
 }
 
+// 加载STEP模型
+BOOL LoadStep(const CString& strFilePath, ProMdl& pMdl)
+{
+	ProError status;
+
+	ProPath filePath;
+	wcsncpy_s(filePath, PRO_PATH_SIZE, (LPCTSTR)strFilePath, _TRUNCATE);
+
+	CString strMdlName = GetFileNameNoExtByPath(strFilePath);
+	ProName mdlName;
+	wcsncpy_s(mdlName, PRO_NAME_SIZE, (LPCTSTR)strMdlName, _TRUNCATE);
+
+	status = ProIntfimportModelCreate(filePath, PRO_INTF_IMPORT_STEP, PRO_MDL_PART, mdlName, NULL, NULL, &pMdl);
+
+	return status == PRO_TK_NO_ERROR;
+}
+
 // 选择对象
 BOOL SelectObject(/*output*/vector<ProSelection> &arrSelObj, 
 				  /*input*/char *pSelOpt, /*input*/int nCount /*= 1*/, /*input*/ProSelection* pArrSelInit /*= NULL*/)
@@ -176,7 +194,154 @@ BOOL SelectObject(/*output*/vector<ProSelection> &arrSelObj,
 	return bRet;
 }
 
+// 设置对象的颜色
+void SetSurfColor(/*input*/const ProModelitem& item, /*input*/double dRed, /*input*/double dGreen, /*input*/double dBlue)
+{
+	Pro_surf_props surfProps;
+
+	int nResult = -1;
+	if (item.type == PRO_SURFACE)
+	{
+		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0, &surfProps);
+		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0);
+		surfProps.color_rgb[0] = dRed/255.0;
+		surfProps.color_rgb[1] = dGreen/255.0;
+		surfProps.color_rgb[2] = dBlue/255.0;
+		surfProps.highlight_color[0] = 1.0;
+		surfProps.highlight_color[1] = 1.0;
+		surfProps.highlight_color[2] = 1.0;
+		surfProps.ambient = 0.5;
+		surfProps.diffuse = 0.8;
+		surfProps.highlite = 0.5;
+		surfProps.shininess = 0.4;
+		surfProps.reflection = 0.25;
+		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0, &surfProps);
+		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 1, &surfProps);
+	}
+	else if (item.type == PRO_QUILT)
+	{
+		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0, &surfProps);
+		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0);
+		surfProps.color_rgb[0] = dRed/255.0;
+		surfProps.color_rgb[1] = dGreen/255.0;
+		surfProps.color_rgb[2] = dBlue/255.0;
+		surfProps.highlight_color[0] = 1.0;
+		surfProps.highlight_color[1] = 1.0;
+		surfProps.highlight_color[2] = 1.0;
+		surfProps.ambient = 0.5;
+		surfProps.diffuse = 0.8;
+		surfProps.highlite = 0.5;
+		surfProps.shininess = 0.4;
+		surfProps.reflection = 0.25;
+		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0, &surfProps);
+		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 1, &surfProps);
+	}
+	else if (item.type == PRO_ASSEMBLY || item.type == PRO_PART)
+	{
+		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_PART, -1, 0, &surfProps);
+		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_PART, item.id, 0);
+		surfProps.color_rgb[0] = dRed/255.0;
+		surfProps.color_rgb[1] = dGreen/255.0;
+		surfProps.color_rgb[2] = dBlue/255.0;
+		surfProps.highlight_color[0] = 1.0;
+		surfProps.highlight_color[1] = 1.0;
+		surfProps.highlight_color[2] = 1.0;
+		surfProps.ambient = 0.5;
+		surfProps.diffuse = 0.8;
+		surfProps.highlite = 0.5;
+		surfProps.shininess = 0.4;
+		surfProps.reflection = 0.25;
+		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_PART, -1, 0, &surfProps);
+	}
+	ProWindowRepaint(PRO_VALUE_UNUSED);
+}
+
+// 测量两个几何对象之间的距离
+BOOL MeasureDistance(ProGeomitem& item1, ProGeomitem& item2, double& dDistance, Pro3dPnt& pnt1, Pro3dPnt& pnt2)
+{
+	ProSelection pSel1 = NULL, pSel2 = NULL;
+	ProSelectionAlloc(NULL, &item1, &pSel1);
+	ProSelectionAlloc(NULL, &item2, &pSel2);
+	if (pSel1 != NULL && pSel2 != NULL)
+	{
+		//#if (defined(DOCTOR_CREO2) || defined(DOCTOR_CREO3) || defined(DOCTOR_CREO4))
+		//		Pro2dPnt param[2] ;
+		//		Pro3dPnt pnt[2];
+		//		if (ProSelectionDistanceEval(pSel1, pSel2, param[0], param[1], pnt1, pnt2, &dDistance) == PRO_TK_NO_ERROR)
+		//		{
+		//			return TRUE;
+		//		}
+		//
+		//#else
+		
+		if (item1.type == PRO_SURFACE && item2.type == PRO_SURFACE)
+		{
+			Select3d entities[2];
+			entities[0] = *pSel1;
+			entities[1] = *pSel2;
+			int interference;
+			double xyz[2][3];
+			if (pro_compute_clearance(entities, PRO_SURFACE_CLEARANCE, &dDistance, &interference, xyz) == 1)
+			{
+				for (int i=0; i<3; i++)
+				{
+					pnt1[i] = xyz[0][i];
+					pnt2[i] = xyz[1][i];
+				}
+				return TRUE;
+			}
+		}
+		else
+		{
+			double uvpar[2][2], xyz[2][3];
+			if (pro_dist_manifolds(pSel1, pSel2, uvpar, xyz, &dDistance) == 1)
+			{
+				for (int i=0; i<3; i++)
+				{
+					pnt1[i] = xyz[0][i];
+					pnt2[i] = xyz[1][i];
+				}
+				return TRUE;
+			}
+		}
+		//#endif
+	}
+	return FALSE;
+}
+
+// 输出特征的xml
+void ExportElemTreeXML()
+{
+	ProError status;
+
+	ProSelection *pSelOpt = NULL;
+	int nSelCount = 0;
+	status = ProSelect("feature", 1, NULL, NULL, NULL, NULL, &pSelOpt, &nSelCount);
+	if (status == PRO_TK_NO_ERROR && nSelCount > 0)
+	{
+		ProFeature feat;
+		status = ProSelectionModelitemGet(pSelOpt[0], &feat);
+		ProElement elemTree;
+		status = ProFeatureElemtreeExtract(&feat, NULL, PRO_FEAT_EXTRACT_NO_OPTS, &elemTree);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			ProName nameFeat;
+			status = ProModelitemNameGet(&feat, nameFeat);
+			CString strXml = nameFeat;
+			strXml.Format(L"C:\\Users\\beaut\\feat_%s.xml", strXml);
+			ProPath pathXML;
+			wcsncpy_s(pathXML, PRO_PATH_SIZE, strXml, _TRUNCATE);
+			status = ProElemtreeWrite(elemTree, PRO_ELEMTREE_XML, pathXML);
+		}
+		else
+		{
+			MessageBox(NULL, L"无法获取该特征的特征树！", L"Error", MB_OK);
+		}
+	}
+}
+
 //===================================================================================================
+// （数学函数）
 
 double VectorDot(const ProVector pV1, const ProVector pV2)
 {
@@ -424,10 +589,24 @@ ProError FeatureDimensionGetAction(ProDimension* dimension, ProError status, Pro
 	return PRO_TK_NO_ERROR;
 }
 
+// 获取复合曲线的子项
+ProError CurveCompGetAction(ProCurve pCurve, ProCurve pComp, int Index, ProBoolean flip, ProError status, ProAppData data)
+{
+	UNUSED_ALWAYS(status);
+	UNUSED_ALWAYS(pCurve);
+	UNUSED_ALWAYS(flip);
+	UNUSED_ALWAYS(Index);
+
+	vector<ProCurve> &visitData = *(vector<ProCurve>*)data;
+	visitData.push_back(pComp);
+	return PRO_TK_NO_ERROR;
+}
+
 //===================================================================================================
 
 // 创建特征
-BOOL CreateFeature(/*input*/ProMdl pMdl, /*input*/ProElement elemRoot, /*output*/ProFeature& feat)
+BOOL CreateFeature(/*input*/ProMdl pMdl, /*input*/ProElement elemRoot, /*output*/ProFeature& feat, 
+				   ProFeatureCreateOptions optCreate)
 {
 	BOOL bRet = FALSE;
 	ProError status;
@@ -440,14 +619,53 @@ BOOL CreateFeature(/*input*/ProMdl pMdl, /*input*/ProElement elemRoot, /*output*
 		status = ProSelectionAlloc(NULL, &itemMdl, &selModel);
 
 		ProErrorlist errorsList;
-		status = ProFeatureCreate(selModel, elemRoot, NULL, 0, &feat, &errorsList);
+		ProFeatureCreateOptions opt[1];
+		opt[0] = optCreate;
+		
+		status = ProFeatureCreate(selModel, elemRoot, opt, 1, &feat, &errorsList);
 		if (status == PRO_TK_NO_ERROR)
-			bRet = TRUE;
+		{
+			if (errorsList.error_number == 0)
+			{
+				ProSolidRegenerationStatus regStatus;
+				ProSolidRegenerationstatusGet(ProMdlToSolid(pMdl), &regStatus);
+				if (regStatus != PRO_SOLID_FAILED_REGENERATION)
+					bRet = TRUE;
+			}
+		}
 
 		SAFE_DELETE_SELECTION(selModel);
 	}
 
 	return bRet;
+}
+
+// 创建特征组
+int CreateFeatGroup(ProMdl pMdl, vector<int>& arrFeatID, const CString& strGroupName)
+{
+	int nRet = ER_CREATE_FAIL;
+	ProError status;
+
+	int* pArrFeatIDs = NULL;
+	status = ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&pArrFeatIDs);
+
+	for (int i=0; i<(int)arrFeatID.size(); i++)
+	{
+		status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &arrFeatID[i]);
+	}
+
+	// 创建组
+	int nFeatsCount;
+	status = ProArraySizeGet(pArrFeatIDs, &nFeatsCount);
+	if (nFeatsCount >= 1)
+	{
+		ProName nameGroup;
+		wcsncpy_s(nameGroup, PRO_NAME_SIZE, strGroupName, _TRUNCATE);
+		ProGroup group;
+		status = ProLocalGroupCreate(ProMdlToSolid(pMdl), pArrFeatIDs, nFeatsCount, nameGroup, &group);
+		nRet = group.id;
+	}
+	return nRet;
 }
 
 // 创建基准平面
@@ -611,6 +829,122 @@ int CreateSolidify(/*input*/ProMdl pMdl, /*input*/ProSelection selQuiltOrPlane, 
 	return nRet;
 }
 
+// 创建面
+int CreateSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*output*/ProModelitem& itemQlt)
+{
+	int nRet = ER_CREATE_FAIL;
+	ProError status;
+
+	ProAsmcomppath compath;
+	status = ProSelectionAsmcomppathGet(selInputSrf, &compath);
+
+	// 检查输入
+	if (selInputSrf->sel_type != SEL_3D_SRF)
+		return ER_BAD_INPUT;
+
+	// 判断面是否包含内环
+	ProModelitem itemInputSrf;
+	status = ProSelectionModelitemGet(selInputSrf, &itemInputSrf);
+	ProSurface srfInput;
+	status = ProGeomitemToSurface(&itemInputSrf, &srfInput);
+	ProSrftype typeInputSrf;
+	status = ProSurfaceTypeGet(srfInput, &typeInputSrf);
+	// 如果是平面，采用填充方式创建
+	if (typeInputSrf == PRO_SRF_PLANE)
+	{
+		nRet = CreateSurfByFillPlane(pMdl, selInputSrf, itemQlt);
+	}
+	else
+	{
+		vector<ProContour> arrContours;
+		status = ProSurfaceContourVisit(srfInput, SurfaceInnerContoursGetAction, NULL, &arrContours);
+		int nCount = (int)arrContours.size();
+		if (nCount == 0)
+		{
+			// 如果曲面不包含内环，直接复制面
+			nRet = CreateSurfaceByCopy(pMdl, selInputSrf, itemQlt);
+		}
+		else
+		{
+			int* pArrFeatIDs = NULL;
+			status = ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&pArrFeatIDs);
+			vector<ProModelitem> arrQuilts;
+
+			// 遍历面的所有内环
+			vector<ProSelection> arrSelQuilts;
+			BOOL bError = FALSE;
+			for (int i=0; i<nCount; i++)
+			{
+				// 获取环的边界
+				vector<ProEdge> arrEdges;
+				status = ProContourEdgeVisit(srfInput, arrContours[i], ContourEdgesGetAction, NULL, &arrEdges);
+				// 将环的第一条边作为输入，创建复制面特征
+				ProModelitem edgeItem;
+				status = ProEdgeToGeomitem(ProMdlToSolid(itemInputSrf.owner), arrEdges[0], &edgeItem);
+				ProSelection selEdge;
+				status = ProSelectionAlloc(&compath, &edgeItem, &selEdge);
+				ProModelitem itemQuilt;
+				int nCopyID = CreateSurfaceByCopy(pMdl, selInputSrf, selEdge, itemQuilt);
+				SAFE_DELETE_SELECTION(selEdge);
+				if (nCopyID > 0)
+				{
+					status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nCopyID);
+					ProSelection selQuiltTemp;
+					status = ProSelectionAlloc(&compath, &itemQuilt, &selQuiltTemp);
+					arrSelQuilts.push_back(selQuiltTemp);
+
+					// 将复制面进行合并
+					if (i != 0)
+					{
+						ProFeature featMerge;
+						int nMergeID = MergeQuilts(pMdl, arrSelQuilts, PRO_SRF_MRG_JOIN, featMerge);
+						SAFE_DELETE_SELECTION(arrSelQuilts[1]);
+						arrQuilts.pop_back();
+						if (nMergeID > 0)
+						{
+							status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nMergeID);
+						}
+						else
+						{
+							bError = TRUE;
+							break;
+						}
+					}
+					else
+					{
+						itemQlt.id = itemQuilt.id;
+						itemQlt.type = itemQuilt.type;
+						itemQlt.owner = itemQuilt.owner;
+					}
+				}
+				else
+				{
+					bError = TRUE;
+					break;
+				}
+			}
+			// 创建组
+			int nFeatsCount;
+			status = ProArraySizeGet(pArrFeatIDs, &nFeatsCount);
+			if (nFeatsCount>1)
+			{
+				ProGroup group;
+				status = ProLocalGroupCreate(ProMdlToSolid(pMdl), pArrFeatIDs, nFeatsCount, L"Surface", &group);
+				nRet = group.id;
+			}
+			else if (nFeatsCount == 1)
+			{
+				nRet = pArrFeatIDs[0];
+			}
+			if (bError)
+				nRet = ER_CREATE_FAIL;
+
+			ProArrayFree((ProArray*)&pArrFeatIDs);
+		}
+	}
+	return nRet;
+}
+
 // 创建复制特征
 int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*output*/ProModelitem& itemSrf)
 {
@@ -679,7 +1013,7 @@ int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf,
 	return nRet;
 }
 
-// 创建复制特征（排除1项）
+// 通过复制方式创建面（排除1个内环）
 int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*input*/ProSelection selInputEdge, 
 						/*output*/ProModelitem& itemSrf)
 {
@@ -743,8 +1077,8 @@ int CreateSurfaceByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf,
 	return nRet;
 }
 
-// 创建填充面
-int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*output*/ProModelitem& itemQlt)
+// 通过填充平面方式来创建面
+int CreateSurfByFillPlane(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*output*/ProModelitem& itemQlt)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -951,8 +1285,8 @@ int CreateFillSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selPlane, /*outpu
 	return nRet;
 }
 
-// 通过草绘创建填充面
-int CreateFillSurfBySketch(/*input*/ProMdl pMdl, /*input*/ProSelection selSketchFeat, /*output*/ProModelitem& itemQlt)
+// 通过填充草绘方式创建面
+int CreateSurfByFillSketch(/*input*/ProMdl pMdl, /*input*/ProSelection selSketchFeat, /*output*/ProModelitem& itemQlt)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -1036,238 +1370,134 @@ int CreateFillSurfBySketch(/*input*/ProMdl pMdl, /*input*/ProSelection selSketch
 	return nRet;
 }
 
-// 创建面
-int CreateSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*output*/ProModelitem& itemQlt)
+// 通过两条边创建面（边界混合）
+int CreateSurfByTwoEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2,
+						/*output*/ProModelitem& itemQlt)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
 
-	ProAsmcomppath compath;
-	status = ProSelectionAsmcomppathGet(selInputSrf, &compath);
-
 	// 检查输入
-	if (selInputSrf->sel_type != SEL_3D_SRF)
+	if (selEdge1->sel_type != SEL_3D_EDG || selEdge2->sel_type != SEL_3D_EDG)
 		return ER_BAD_INPUT;
 
-	// 判断面是否包含内环
-	ProModelitem itemInputSrf;
-	status = ProSelectionModelitemGet(selInputSrf, &itemInputSrf);
-	ProSurface srfInput;
-	status = ProGeomitemToSurface(&itemInputSrf, &srfInput);
-	ProSrftype typeInputSrf;
-	status = ProSurfaceTypeGet(srfInput, &typeInputSrf);
-	// 如果是平面，采用填充方式创建
-	if (typeInputSrf == PRO_SRF_PLANE)
+	// 检查UDF文件
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\blendsrf.gph";
+	if (IsFileExist(strUDFPath))
 	{
-		nRet = CreateFillSurf(pMdl, selInputSrf, itemQlt);
+		ProBoolean bExtRef = PRO_B_FALSE;
+		if (selEdge1->assembly_ptr != NULL)
+			bExtRef = PRO_B_TRUE;
+
+		ProUdfdata udfdata;
+		status = ProUdfdataAlloc(&udfdata);
+		// 设置UDF路径
+		ProPath pathUDF;
+		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+		status = ProUdfdataPathSet(udfdata, pathUDF);
+		// 获取参照项
+		ProUdfRequiredRef* parrRef = NULL;
+		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+		ProLine prompt[2];
+		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
+		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
+		// 设置参照
+		ProUdfreference refUDF[2];
+		status = ProUdfreferenceAlloc(prompt[0], selEdge1, bExtRef, &refUDF[0]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
+		status = ProUdfreferenceAlloc(prompt[1], selEdge2, bExtRef, &refUDF[1]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
+		// 创建UDF特征
+		ProGroup udf;
+		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			ProFeature* pFeatArray = NULL;
+			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+			// 获取特征中的面
+			vector<ProModelitem> arrSrfs;
+			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
+			itemQlt.id = arrSrfs[0].id;
+			itemQlt.owner = arrSrfs[0].owner;
+			itemQlt.type = arrSrfs[0].type;
+			nRet = pFeatArray[1].id;
+			status = ProGroupUngroup(&udf);
+			status = ProArrayFree((ProArray*)&pFeatArray);
+		}
+		status = ProUdfdataFree(udfdata);
+		status = ProUdfreferenceFree(refUDF[0]);
+		status = ProUdfreferenceFree(refUDF[1]);
 	}
 	else
-	{
-		vector<ProContour> arrContours;
-		status = ProSurfaceContourVisit(srfInput, SurfaceInnerContoursGetAction, NULL, &arrContours);
-		int nCount = (int)arrContours.size();
-		if (nCount == 0)
-		{
-			// 如果曲面不包含内环，直接复制面
-			nRet = CreateSurfaceByCopy(pMdl, selInputSrf, itemQlt);
-		}
-		else
-		{
-			int* pArrFeatIDs = NULL;
-			status = ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&pArrFeatIDs);
-			vector<ProModelitem> arrQuilts;
-
-			// 遍历面的所有内环
-			vector<ProSelection> arrSelQuilts;
-			BOOL bError = FALSE;
-			for (int i=0; i<nCount; i++)
-			{
-				// 获取环的边界
-				vector<ProEdge> arrEdges;
-				status = ProContourEdgeVisit(srfInput, arrContours[i], ContourEdgesGetAction, NULL, &arrEdges);
-				// 将环的第一条边作为输入，创建复制面特征
-				ProModelitem edgeItem;
-				status = ProEdgeToGeomitem(ProMdlToSolid(itemInputSrf.owner), arrEdges[0], &edgeItem);
-				ProSelection selEdge;
-				status = ProSelectionAlloc(&compath, &edgeItem, &selEdge);
-				ProModelitem itemQuilt;
-				int nCopyID = CreateSurfaceByCopy(pMdl, selInputSrf, selEdge, itemQuilt);
-				SAFE_DELETE_SELECTION(selEdge);
-				if (nCopyID > 0)
-				{
-					status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nCopyID);
-					ProSelection selQuiltTemp;
-					status = ProSelectionAlloc(&compath, &itemQuilt, &selQuiltTemp);
-					arrSelQuilts.push_back(selQuiltTemp);
-
-					// 将复制面进行合并
-					if (i != 0)
-					{
-						ProFeature featMerge;
-						int nMergeID = MergeSurfs(pMdl, arrSelQuilts, PRO_SRF_MRG_JOIN, featMerge);
-						SAFE_DELETE_SELECTION(arrSelQuilts[1]);
-						arrQuilts.pop_back();
-						if (nMergeID > 0)
-						{
-							status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nMergeID);
-						}
-						else
-						{
-							bError = TRUE;
-							break;
-						}
-					}
-					else
-					{
-						itemQlt.id = itemQuilt.id;
-						itemQlt.type = itemQuilt.type;
-						itemQlt.owner = itemQuilt.owner;
-					}
-				}
-				else
-				{
-					bError = TRUE;
-					break;
-				}
-			}
-			// 创建组
-			int nFeatsCount;
-			status = ProArraySizeGet(pArrFeatIDs, &nFeatsCount);
-			if (nFeatsCount>1)
-			{
-				ProGroup group;
-				status = ProLocalGroupCreate(ProMdlToSolid(pMdl), pArrFeatIDs, nFeatsCount, L"Surface", &group);
-				nRet = group.id;
-			}
-			else if (nFeatsCount == 1)
-			{
-				nRet = pArrFeatIDs[0];
-			}
-			if (bError)
-				nRet = ER_CREATE_FAIL;
-
-			ProArrayFree((ProArray*)&pArrFeatIDs);
-		}
-	}
+		nRet = ER_INVALID_UDF;
 	return nRet;
 }
 
-// 获取边所在的完整环（内环）
-BOOL GetContourByEdge(/*input*/ProSelection selEdge, /*output*/vector<ProSelection> &arrSelEdge, /*output*/int& nDir)
+// 通过两条边创建面（边界混合）
+int CreateSurfByTwoCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selCurve1, /*input*/ProSelection selCurve2,
+						 /*output*/ProModelitem& itemQlt)
 {
+	int nRet = ER_CREATE_FAIL;
 	ProError status;
 
-	// 获取边的相邻面
-	ProModelitem itemEdge;
-	status = ProSelectionModelitemGet(selEdge, &itemEdge);
-	ProEdge edge[3];
-	status = ProGeomitemToEdge(&itemEdge, &edge[0]);
-	ProSurface surfNeighbour[2];
-	status = ProEdgeNeighborsGet(edge[0], &edge[1], &edge[2], &surfNeighbour[0], &surfNeighbour[1]);
-	if (status != PRO_TK_NO_ERROR)
-		return FALSE;
+	// 检查输入
+	if (selCurve1->sel_type != SEL_3D_CURVE || selCurve2->sel_type != SEL_3D_CURVE)
+		return ER_BAD_INPUT;
 
-	// 检查面的环与边是否匹配
-	vector<ProContour> arrContours;
-	vector<ProEdge> arrEdges;
-	for (int i=0; i<2; i++)
+	// 检查UDF文件
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\blendsurfbycurve.gph";
+	if (IsFileExist(strUDFPath))
 	{
-		arrContours.clear();
-		status = ProSurfaceContourVisit(surfNeighbour[i], SurfaceInnerContoursGetAction, NULL, &arrContours);
-		for (int j=0; j<(int)arrContours.size(); j++)
+		ProBoolean bExtRef = PRO_B_FALSE;
+		if (selCurve1->assembly_ptr != NULL)
+			bExtRef = PRO_B_TRUE;
+
+		ProUdfdata udfdata;
+		status = ProUdfdataAlloc(&udfdata);
+		// 设置UDF路径
+		ProPath pathUDF;
+		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+		status = ProUdfdataPathSet(udfdata, pathUDF);
+		// 获取参照项
+		ProUdfRequiredRef* parrRef = NULL;
+		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+		ProLine prompt[2];
+		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
+		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
+		// 设置参照
+		ProUdfreference refUDF[2];
+		status = ProUdfreferenceAlloc(prompt[0], selCurve1, bExtRef, &refUDF[0]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
+		status = ProUdfreferenceAlloc(prompt[1], selCurve2, bExtRef, &refUDF[1]);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
+		// 创建UDF特征
+		ProGroup udf;
+		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
+		if (status == PRO_TK_NO_ERROR)
 		{
-			arrEdges.clear();
-			status = ProContourEdgeVisit(surfNeighbour[i], arrContours[j], ContourEdgesGetAction, NULL, &arrEdges);
-			for (int k=0; k<(int)arrEdges.size(); k++)
-			{
-				// 如果匹配
-				if (arrEdges[k] == edge[0])
-				{
-					arrSelEdge.clear();
-					ProAsmcomppath compath;
-					status = ProSelectionAsmcomppathGet(selEdge, &compath);
-					ProModelitem itemEdgeTemp;
-					for (int m=0; m<(int)arrEdges.size(); m++)
-					{
-						status = ProEdgeToGeomitem(ProMdlToSolid(itemEdge.owner), arrEdges[m], &itemEdgeTemp);
-						ProSelection selEdgeTemp;
-						status = ProSelectionAlloc(&compath, &itemEdgeTemp, &selEdgeTemp);
-						arrSelEdge.push_back(selEdgeTemp);
-					}
-					// 计算环的方向
-					ProEdgeDirGet(arrEdges[0], surfNeighbour[i], &nDir);
-					return TRUE;
-				}
-			}
+			ProFeature* pFeatArray = NULL;
+			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+			// 获取特征中的面
+			vector<ProModelitem> arrSrfs;
+			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
+			itemQlt.id = arrSrfs[0].id;
+			itemQlt.owner = arrSrfs[0].owner;
+			itemQlt.type = arrSrfs[0].type;
+			nRet = pFeatArray[1].id;
+			status = ProGroupUngroup(&udf);
+			status = ProArrayFree((ProArray*)&pFeatArray);
 		}
+		status = ProUdfdataFree(udfdata);
+		status = ProUdfreferenceFree(refUDF[0]);
+		status = ProUdfreferenceFree(refUDF[1]);
 	}
-	return FALSE;
+	else
+		nRet = ER_INVALID_UDF;
+	return nRet;
 }
 
-// 设置对象的颜色
-void SetSurfColor(/*input*/const ProModelitem& item, /*input*/double dRed, /*input*/double dGreen, /*input*/double dBlue)
-{
-	Pro_surf_props surfProps;
-
-	int nResult = -1;
-	if (item.type == PRO_SURFACE)
-	{
-		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0, &surfProps);
-		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0);
-		surfProps.color_rgb[0] = dRed/255.0;
-		surfProps.color_rgb[1] = dGreen/255.0;
-		surfProps.color_rgb[2] = dBlue/255.0;
-		surfProps.highlight_color[0] = 1.0;
-		surfProps.highlight_color[1] = 1.0;
-		surfProps.highlight_color[2] = 1.0;
-		surfProps.ambient = 0.5;
-		surfProps.diffuse = 0.8;
-		surfProps.highlite = 0.5;
-		surfProps.shininess = 0.4;
-		surfProps.reflection = 0.25;
-		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 0, &surfProps);
-		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF, item.id, 1, &surfProps);
-	}
-	else if (item.type == PRO_QUILT)
-	{
-		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0, &surfProps);
-		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0);
-		surfProps.color_rgb[0] = dRed/255.0;
-		surfProps.color_rgb[1] = dGreen/255.0;
-		surfProps.color_rgb[2] = dBlue/255.0;
-		surfProps.highlight_color[0] = 1.0;
-		surfProps.highlight_color[1] = 1.0;
-		surfProps.highlight_color[2] = 1.0;
-		surfProps.ambient = 0.5;
-		surfProps.diffuse = 0.8;
-		surfProps.highlite = 0.5;
-		surfProps.shininess = 0.4;
-		surfProps.reflection = 0.25;
-		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 0, &surfProps);
-		nResult = prodb_set_surface_props((Prohandle)(item.owner), SEL_3D_SRF_LIST, item.id, 1, &surfProps);
-	}
-	else if (item.type == PRO_ASSEMBLY || item.type == PRO_PART)
-	{
-		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_PART, -1, 0, &surfProps);
-		prodb_unset_surface_props((Prohandle)(item.owner), SEL_3D_PART, item.id, 0);
-		surfProps.color_rgb[0] = dRed/255.0;
-		surfProps.color_rgb[1] = dGreen/255.0;
-		surfProps.color_rgb[2] = dBlue/255.0;
-		surfProps.highlight_color[0] = 1.0;
-		surfProps.highlight_color[1] = 1.0;
-		surfProps.highlight_color[2] = 1.0;
-		surfProps.ambient = 0.5;
-		surfProps.diffuse = 0.8;
-		surfProps.highlite = 0.5;
-		surfProps.shininess = 0.4;
-		surfProps.reflection = 0.25;
-		nResult = prodb_get_surface_props((Prohandle)(item.owner), SEL_3D_PART, -1, 0, &surfProps);
-	}
-	ProWindowRepaint(PRO_VALUE_UNUSED);
-}
-
-// 通过边或曲线修剪面
-int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
+// 通过一组边修剪面
+int TrimQuiltByEdgeGroup(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
 				/*input*/vector<ProSelection> arrSelEdges, int nTrimDir)
 {
 	int nRet = ER_CREATE_FAIL;
@@ -1394,7 +1624,8 @@ int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
 	return nRet;
 }
 
-int TrimSurfaceByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
+// 通过曲线修剪面
+int TrimQuiltByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
 				/*input*/ProSelection selCurve, /*input*/int nTrimDir)
 {
 	int nRet = ER_CREATE_FAIL;
@@ -1518,8 +1749,477 @@ int TrimSurfaceByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
 	return nRet;
 }
 
+// 通过曲线修剪面（将曲线延展至与面的外轮廓相交）
+BOOL TrimQuiltByExtendCurveToContour(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
+									  /*input*/ProSelection selCurve,  /*input*/ProSelection selContourCurve, 
+									  /*input*/int nTrimDir,
+									  ProFeature& feat)
+{
+	BOOL bRet = FALSE;
+	ProError status;
+
+	// 检查输入
+	if (GetSelectionType(selQuilt) != PRO_QUILT)
+		return FALSE;
+
+	// 设置裁剪方向
+	ProTrimMatlSideOpts matside;
+	ProTrimPrimaryQltSide qltside;
+	if (nTrimDir == PRO_EDGE_SAME_DIRECTION)
+	{
+		matside = PRO_TRIM_MATL_SIDE_TWO;
+		qltside = PRO_TRIM_PRIM_QLT_SIDE_TWO;
+	}
+	else
+	{
+		matside = PRO_TRIM_MATL_SIDE_ONE;
+		qltside = PRO_TRIM_PRIM_QLT_SIDE_ONE;
+	}
+
+	// 获取曲线的起点和终点
+	ProModelitem itemTrimCurve;
+	ProSelectionModelitemGet(selCurve, &itemTrimCurve);
+	ProCurve curveTrim;
+	ProGeomitemToCurve(&itemTrimCurve, &curveTrim);
+	vector<ProCurve> arrCompCurves;
+	status = ProCurveCompVisit(curveTrim, CurveCompGetAction, NULL, &arrCompCurves);
+	ProModelitem itemPntStart, itemPntEnd;
+	itemPntStart.id = itemPntEnd.id = itemTrimCurve.id;
+	itemPntStart.type = PRO_CRV_START;
+	itemPntEnd.type = PRO_CRV_END;
+	itemPntStart.owner = itemPntEnd.owner = itemTrimCurve.owner;
+
+	int nCompCount = (int)arrCompCurves.size();
+	if (nCompCount > 0)
+	{
+		ProModelitem itemCurve1;
+		ProCurveToGeomitem(ProMdlToSolid(pMdl), arrCompCurves[0], &itemCurve1);
+		itemPntStart.id = itemPntEnd.id = itemCurve1.id;
+		if (nCompCount > 1)
+		{
+			ProModelitem itemCurve2;
+			ProCurveToGeomitem(ProMdlToSolid(pMdl), arrCompCurves[nCompCount-1], &itemCurve2);
+			itemPntEnd.id = itemCurve2.id;
+		}
+	}
+
+	ProSelection selPntStart, selPntEnd;
+	status = ProSelectionAlloc(NULL, &itemPntStart, &selPntStart);
+	status = ProSelectionAlloc(NULL, &itemPntEnd, &selPntEnd);
+
+	ProReference refContourCurve;
+	status = ProSelectionToReference(selContourCurve, &refContourCurve);
+
+	ProElement elemTree = NULL;
+	status = ProElementAlloc(PRO_E_FEATURE_TREE, &elemTree);
+	{
+		// 特征类型 PRO_E_FEATURE_TYPE
+		ProElement elemType;
+		status = ProElementAlloc(PRO_E_FEATURE_TYPE, &elemType);
+		ProValueData valdataType;
+		valdataType.type = PRO_VALUE_TYPE_INT;
+		valdataType.v.i = PRO_FEAT_CUT;
+		ProValue valueType = NULL;
+		status = ProValueAlloc(&valueType);
+		status = ProValueDataSet(valueType, &valdataType);
+		status = ProElementValueSet(elemType, valueType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemType);
+
+		// 修剪类型 PRO_E_SRF_TRIM_TYPE
+		ProElement elemTrimType;
+		status = ProElementAlloc(PRO_E_SRF_TRIM_TYPE, &elemTrimType);
+		ProValueData valdataTrimType;
+		valdataTrimType.type = PRO_VALUE_TYPE_INT;
+		valdataTrimType.v.i = PRO_SURF_TRIM_USE_CRV;
+		ProValue valueTrimType = NULL;
+		status = ProValueAlloc(&valueTrimType);
+		status = ProValueDataSet(valueTrimType, &valdataTrimType);
+		status = ProElementValueSet(elemTrimType, valueTrimType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemTrimType);
+
+		// 面类型 PRO_E_SURF_TRIM_TYPE
+		ProElement elemSurfType;
+		status = ProElementAlloc(PRO_E_SRF_TRIM_TYPE, &elemSurfType);
+		ProValueData valdataSurfType;
+		valdataSurfType.type = PRO_VALUE_TYPE_INT;
+		valdataSurfType.v.i = PRO_SURF_TRIM_USE_CRV;
+		ProValue valueSurfType = NULL;
+		status = ProValueAlloc(&valueSurfType);
+		status = ProValueDataSet(valueSurfType, &valdataSurfType);
+		status = ProElementValueSet(elemSurfType, valueSurfType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemSurfType);
+
+		// 参考面组 PRO_E_TRIM_QUILT
+		ProElement elemTrimQuilt;
+		status = ProElementAlloc(PRO_E_TRIM_QUILT, &elemTrimQuilt);
+		ProValueData valdataTrimQuilt;
+		valdataTrimQuilt.type = PRO_VALUE_TYPE_SELECTION;
+		valdataTrimQuilt.v.r = selQuilt;
+		ProValue valueTrimQuilt = NULL;
+		status = ProValueAlloc(&valueTrimQuilt);
+		status = ProValueDataSet(valueTrimQuilt, &valdataTrimQuilt);
+		status = ProElementValueSet(elemTrimQuilt, valueTrimQuilt);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemTrimQuilt);
+
+		// 参考曲线 PRO_E_STD_CURVE_COLLECTION_APPL
+		ProElement elemCurve;
+		status = ProElementAlloc(PRO_E_STD_CURVE_COLLECTION_APPL, &elemCurve);
+		ProCollection collect;
+		status = ProCrvcollectionAlloc(&collect);
+
+		ProCrvcollinstr instCurv1;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_ADD_ONE_INSTR, &instCurv1);
+		ProReference refCurve;
+		status = ProSelectionToReference(selCurve, &refCurve);
+		status = ProCrvcollinstrReferenceAdd(instCurv1, refCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instCurv1);
+
+		ProCrvcollinstr instPntStart;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_EXTEND_INSTR, &instPntStart);
+		ProReference refPntStart;
+		status = ProSelectionToReference(selPntStart, &refPntStart);
+		status = ProCrvcollinstrReferenceAdd(instPntStart, refPntStart);
+		status = ProCrvcollinstrReferenceAdd(instPntStart, refContourCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instPntStart);
+
+		ProCrvcollinstr instPntEnd;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_EXTEND_INSTR, &instPntEnd);
+		ProReference refPntEnd;
+		status = ProSelectionToReference(selPntEnd, &refPntEnd);
+		status = ProCrvcollinstrReferenceAdd(instPntEnd, refPntEnd);
+		status = ProCrvcollinstrReferenceAdd(instPntEnd, refContourCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instPntEnd);
+
+		status = ProElementCollectionSet(elemCurve, collect);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemCurve);
+		status = ProCollectionFree(&collect);
+		status = ProCrvcollinstrFree(instCurv1);
+
+		// PRO_E_MATERIAL_SIDE
+		ProElement elemMatSide;
+		status = ProElementAlloc(PRO_E_MATERIAL_SIDE, &elemMatSide);
+		ProValueData valdataMatSide;
+		valdataMatSide.type = PRO_VALUE_TYPE_INT;
+		valdataMatSide.v.i = matside;
+		ProValue valueMatSide = NULL;
+		status = ProValueAlloc(&valueMatSide);
+		status = ProValueDataSet(valueMatSide, &valdataMatSide);
+		status = ProElementValueSet(elemMatSide, valueMatSide);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemMatSide);
+
+		// PRO_E_PRIMARY_QLTSIDE
+		ProElement elemQltSide;
+		status = ProElementAlloc(PRO_E_PRIMARY_QLTSIDE, &elemQltSide);
+		ProValueData valdataQltSide;
+		valdataQltSide.type = PRO_VALUE_TYPE_INT;
+		valdataQltSide.v.i = qltside;
+		ProValue valueQltSide = NULL;
+		status = ProValueAlloc(&valueQltSide);
+		status = ProValueDataSet(valueQltSide, &valdataQltSide);
+		status = ProElementValueSet(elemQltSide, valueQltSide);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemQltSide);
+	}
+
+	if (CreateFeature(pMdl, elemTree, feat))
+	{
+		bRet = TRUE;
+	}
+	return bRet;
+}
+
+// 通过曲线修剪面（将曲线延展至与面的外轮廓相交）
+BOOL TrimQuiltByExtendCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, 
+							 /*input*/ProSelection selCurve,  /*input*/ProSelection selContourCurve, 
+							 /*input*/int nTrimDir,
+							 ProFeature& feat)
+{
+	BOOL bRet = FALSE;
+	ProError status;
+
+	// 检查输入
+	if (GetSelectionType(selQuilt) != PRO_QUILT)
+		return FALSE;
+
+	// 设置裁剪方向
+	ProTrimMatlSideOpts matside;
+	ProTrimPrimaryQltSide qltside;
+	if (nTrimDir == PRO_EDGE_SAME_DIRECTION)
+	{
+		matside = PRO_TRIM_MATL_SIDE_TWO;
+		qltside = PRO_TRIM_PRIM_QLT_SIDE_TWO;
+	}
+	else
+	{
+		matside = PRO_TRIM_MATL_SIDE_ONE;
+		qltside = PRO_TRIM_PRIM_QLT_SIDE_ONE;
+	}
+
+	// 获取曲线的起点和终点
+	ProModelitem itemTrimCurve;
+	ProSelectionModelitemGet(selCurve, &itemTrimCurve);
+	ProCurve curveTrim;
+	ProGeomitemToCurve(&itemTrimCurve, &curveTrim);
+	vector<ProCurve> arrCompCurves;
+	status = ProCurveCompVisit(curveTrim, CurveCompGetAction, NULL, &arrCompCurves);
+	ProModelitem itemPntStart, itemPntEnd;
+	itemPntStart.id = itemPntEnd.id = itemTrimCurve.id;
+	itemPntStart.type = PRO_CRV_START;
+	itemPntEnd.type = PRO_CRV_END;
+	itemPntStart.owner = itemPntEnd.owner = itemTrimCurve.owner;
+
+	int nCompCount = (int)arrCompCurves.size();
+	if (nCompCount > 0)
+	{
+		ProModelitem itemCurve1;
+		ProCurveToGeomitem(ProMdlToSolid(pMdl), arrCompCurves[0], &itemCurve1);
+		itemPntStart.id = itemPntEnd.id = itemCurve1.id;
+		if (nCompCount > 1)
+		{
+			ProModelitem itemCurve2;
+			ProCurveToGeomitem(ProMdlToSolid(pMdl), arrCompCurves[nCompCount-1], &itemCurve2);
+			itemPntEnd.id = itemCurve2.id;
+		}
+	}
+
+	ProSelection selPntStart, selPntEnd;
+	status = ProSelectionAlloc(NULL, &itemPntStart, &selPntStart);
+	status = ProSelectionAlloc(NULL, &itemPntEnd, &selPntEnd);
+
+	// 计算距离
+	double dMdlSize = GetMaxSize(pMdl);
+
+	ProReference refContourCurve;
+	status = ProSelectionToReference(selContourCurve, &refContourCurve);
+
+	ProElement elemTree = NULL;
+	status = ProElementAlloc(PRO_E_FEATURE_TREE, &elemTree);
+	{
+		// 特征类型 PRO_E_FEATURE_TYPE
+		ProElement elemType;
+		status = ProElementAlloc(PRO_E_FEATURE_TYPE, &elemType);
+		ProValueData valdataType;
+		valdataType.type = PRO_VALUE_TYPE_INT;
+		valdataType.v.i = PRO_FEAT_CUT;
+		ProValue valueType = NULL;
+		status = ProValueAlloc(&valueType);
+		status = ProValueDataSet(valueType, &valdataType);
+		status = ProElementValueSet(elemType, valueType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemType);
+
+		// 修剪类型 PRO_E_SRF_TRIM_TYPE
+		ProElement elemTrimType;
+		status = ProElementAlloc(PRO_E_SRF_TRIM_TYPE, &elemTrimType);
+		ProValueData valdataTrimType;
+		valdataTrimType.type = PRO_VALUE_TYPE_INT;
+		valdataTrimType.v.i = PRO_SURF_TRIM_USE_CRV;
+		ProValue valueTrimType = NULL;
+		status = ProValueAlloc(&valueTrimType);
+		status = ProValueDataSet(valueTrimType, &valdataTrimType);
+		status = ProElementValueSet(elemTrimType, valueTrimType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemTrimType);
+
+		// 面类型 PRO_E_SURF_TRIM_TYPE
+		ProElement elemSurfType;
+		status = ProElementAlloc(PRO_E_SRF_TRIM_TYPE, &elemSurfType);
+		ProValueData valdataSurfType;
+		valdataSurfType.type = PRO_VALUE_TYPE_INT;
+		valdataSurfType.v.i = PRO_SURF_TRIM_USE_CRV;
+		ProValue valueSurfType = NULL;
+		status = ProValueAlloc(&valueSurfType);
+		status = ProValueDataSet(valueSurfType, &valdataSurfType);
+		status = ProElementValueSet(elemSurfType, valueSurfType);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemSurfType);
+
+		// 参考面组 PRO_E_TRIM_QUILT
+		ProElement elemTrimQuilt;
+		status = ProElementAlloc(PRO_E_TRIM_QUILT, &elemTrimQuilt);
+		ProValueData valdataTrimQuilt;
+		valdataTrimQuilt.type = PRO_VALUE_TYPE_SELECTION;
+		valdataTrimQuilt.v.r = selQuilt;
+		ProValue valueTrimQuilt = NULL;
+		status = ProValueAlloc(&valueTrimQuilt);
+		status = ProValueDataSet(valueTrimQuilt, &valdataTrimQuilt);
+		status = ProElementValueSet(elemTrimQuilt, valueTrimQuilt);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemTrimQuilt);
+
+		// 参考曲线 PRO_E_STD_CURVE_COLLECTION_APPL
+		ProElement elemCurve;
+		status = ProElementAlloc(PRO_E_STD_CURVE_COLLECTION_APPL, &elemCurve);
+		ProCollection collect;
+		status = ProCrvcollectionAlloc(&collect);
+
+		ProCrvcollinstr instCurv1;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_ADD_ONE_INSTR, &instCurv1);
+		ProReference refCurve;
+		status = ProSelectionToReference(selCurve, &refCurve);
+		status = ProCrvcollinstrReferenceAdd(instCurv1, refCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instCurv1);
+
+		ProCrvcollinstr instPntStart;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_EXTEND_INSTR, &instPntStart);
+		status = ProCrvcollinstrValueSet(instPntStart, dMdlSize);
+		ProReference refPntStart;
+		status = ProSelectionToReference(selPntStart, &refPntStart);
+		status = ProCrvcollinstrReferenceAdd(instPntStart, refPntStart);
+		//status = ProCrvcollinstrReferenceAdd(instPntStart, refContourCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instPntStart);
+
+		ProCrvcollinstr instPntEnd;
+		status = ProCrvcollinstrAlloc(PRO_CURVCOLL_EXTEND_INSTR, &instPntEnd);
+		status = ProCrvcollinstrValueSet(instPntEnd, dMdlSize);
+		ProReference refPntEnd;
+		status = ProSelectionToReference(selPntEnd, &refPntEnd);
+		status = ProCrvcollinstrReferenceAdd(instPntEnd, refPntEnd);
+		//status = ProCrvcollinstrReferenceAdd(instPntEnd, refContourCurve);
+		status = ProCrvcollectionInstructionAdd(collect, instPntEnd);
+
+		status = ProElementCollectionSet(elemCurve, collect);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemCurve);
+		status = ProCollectionFree(&collect);
+		status = ProCrvcollinstrFree(instCurv1);
+
+		// PRO_E_MATERIAL_SIDE
+		ProElement elemMatSide;
+		status = ProElementAlloc(PRO_E_MATERIAL_SIDE, &elemMatSide);
+		ProValueData valdataMatSide;
+		valdataMatSide.type = PRO_VALUE_TYPE_INT;
+		valdataMatSide.v.i = matside;
+		ProValue valueMatSide = NULL;
+		status = ProValueAlloc(&valueMatSide);
+		status = ProValueDataSet(valueMatSide, &valdataMatSide);
+		status = ProElementValueSet(elemMatSide, valueMatSide);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemMatSide);
+
+		// PRO_E_PRIMARY_QLTSIDE
+		ProElement elemQltSide;
+		status = ProElementAlloc(PRO_E_PRIMARY_QLTSIDE, &elemQltSide);
+		ProValueData valdataQltSide;
+		valdataQltSide.type = PRO_VALUE_TYPE_INT;
+		valdataQltSide.v.i = qltside;
+		ProValue valueQltSide = NULL;
+		status = ProValueAlloc(&valueQltSide);
+		status = ProValueDataSet(valueQltSide, &valdataQltSide);
+		status = ProElementValueSet(elemQltSide, valueQltSide);
+		status = ProElemtreeElementAdd(elemTree, NULL, elemQltSide);
+	}
+
+	if (CreateFeature(pMdl, elemTree, feat))
+	{
+		bRet = TRUE;
+	}
+	return bRet;
+}
+
+//// 裁剪面 by 曲线（UDF方式）
+//int TrimSurfWithCurveByUDF(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
+//						   /*input*/ProSelection selTrimCurve, /*input*/ProSelection selContourCurve, int nMode)
+//{
+//	int nRet = ER_CREATE_FAIL;
+//	ProError status;
+//
+//	// 检查输入
+//	if (GetSelectionType(selQuilt) != PRO_QUILT && 
+//		GetSelectionType(selTrimCurve) != PRO_CURVE && 
+//		GetSelectionType(selContourCurve) != PRO_CURVE)
+//		return ER_BAD_INPUT;
+//
+//	// 获取曲线的起点和终点
+//	ProModelitem itemTrimCurve;
+//	ProSelectionModelitemGet(selTrimCurve, &itemTrimCurve);
+//
+//	// 获取边的顶点
+//	ProModelitem itemPntStart, itemPntEnd;
+//	itemPntStart.id = itemPntEnd.id = itemTrimCurve.id;
+//	itemPntStart.type = PRO_CRV_START;
+//	itemPntEnd.type = PRO_CRV_END;
+//	itemPntStart.owner = itemPntEnd.owner = itemTrimCurve.owner;
+//	ProSelection selPnt1, selPnt2;
+//
+//	// 检查UDF文件
+//	CString strUDFPath;
+//	switch (nMode)
+//	{
+//	default:
+//	case 1:
+//		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve.gph";
+//		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt2);
+//		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt1);
+//		break;
+//	case 2:
+//		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve2.gph";
+//		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt1);
+//		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt2);
+//		break;
+//	}
+//
+//	if (IsFileExist(strUDFPath))
+//	{
+//		ProBoolean bRefExt = PRO_B_FALSE;
+//		if (selQuilt->assembly_ptr != NULL)
+//			bRefExt = PRO_B_TRUE;
+//
+//		ProUdfdata udfdata;
+//		status = ProUdfdataAlloc(&udfdata);
+//		// 设置UDF路径
+//		ProPath pathUDF;
+//		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+//		status = ProUdfdataPathSet(udfdata, pathUDF);
+//		// 获取参照项
+//		ProUdfRequiredRef* parrRef = NULL;
+//		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+//		ProLine prompt[5];
+//		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
+//		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
+//		status = ProUdfrequiredrefPromptGet(parrRef[2], prompt[2]);
+//		status = ProUdfrequiredrefPromptGet(parrRef[3], prompt[3]);
+//		status = ProUdfrequiredrefPromptGet(parrRef[4], prompt[4]);
+//		// 设置参照
+//		ProUdfreference refUDF[5];
+//		status = ProUdfreferenceAlloc(prompt[0], selQuilt, bRefExt, &refUDF[0]);
+//		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
+//		status = ProUdfreferenceAlloc(prompt[1], selTrimCurve, bRefExt, &refUDF[1]);
+//		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
+//		status = ProUdfreferenceAlloc(prompt[2], selPnt1, bRefExt, &refUDF[2]);
+//		status = ProUdfdataReferenceAdd(udfdata, refUDF[2]);
+//		status = ProUdfreferenceAlloc(prompt[3], selContourCurve, bRefExt, &refUDF[3]);
+//		status = ProUdfdataReferenceAdd(udfdata, refUDF[3]);
+//		status = ProUdfreferenceAlloc(prompt[4], selPnt2, bRefExt, &refUDF[4]);
+//		status = ProUdfdataReferenceAdd(udfdata, refUDF[4]);
+//
+//		// 创建UDF特征
+//		ProGroup udf;
+//		ProUdfCreateOption opt[] = {PROUDFOPT_FIX_MODEL_UI_OFF};
+//		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, opt, 1, &udf);
+//		if (status == PRO_TK_NO_ERROR)
+//		{
+//			ProFeature* pFeatArray = NULL;
+//			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+//			if (status == PRO_TK_NO_ERROR)
+//			{
+//				nRet = pFeatArray[1].id;
+//				status = ProGroupUngroup(&udf);
+//				status = ProArrayFree((ProArray*)&pFeatArray);
+//			}
+//		}
+//		else
+//		{
+//			if (nMode < 2)
+//				nRet = TrimSurfWithCurveByUDF(pMdl, selQuilt, selTrimCurve, selContourCurve, nMode+1);
+//		}
+//
+//		status = ProUdfreferenceFree(refUDF[0]);
+//		status = ProUdfreferenceFree(refUDF[1]);
+//		status = ProUdfreferenceFree(refUDF[2]);
+//		status = ProUdfreferenceFree(refUDF[3]);
+//		status = ProUdfreferenceFree(refUDF[4]);
+//	}
+//	else
+//		nRet = ER_INVALID_UDF;
+//	return nRet;
+//}
+
 // 通过面组或基准面修剪面
-int TrimSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selCutQlt, 
+int TrimSurfaceBySurf(/*input*/ProMdl pMdl, /*input*/ProSelection selCutQlt, 
 				/*input*/ProSelection selRefSrf, int nTrimDir)
 {
 	int nRet = ER_CREATE_FAIL;
@@ -1714,133 +2414,8 @@ int ReverseTrimDirection(ProFeature feat)
 	return nRet;
 }
 
-// 创建边界混合特征
-int CreateBlendSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2,
-					/*output*/ProModelitem& itemQlt)
-{
-	int nRet = ER_CREATE_FAIL;
-	ProError status;
-
-	// 检查输入
-	if (selEdge1->sel_type != SEL_3D_EDG || selEdge2->sel_type != SEL_3D_EDG)
-		return ER_BAD_INPUT;
-
-	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\blendsrf.gph";
-	if (IsFileExist(strUDFPath))
-	{
-		ProBoolean bExtRef = PRO_B_FALSE;
-		if (selEdge1->assembly_ptr != NULL)
-			bExtRef = PRO_B_TRUE;
-
-		ProUdfdata udfdata;
-		status = ProUdfdataAlloc(&udfdata);
-		// 设置UDF路径
-		ProPath pathUDF;
-		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
-		status = ProUdfdataPathSet(udfdata, pathUDF);
-		// 获取参照项
-		ProUdfRequiredRef* parrRef = NULL;
-		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
-		ProLine prompt[2];
-		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
-		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
-		// 设置参照
-		ProUdfreference refUDF[2];
-		status = ProUdfreferenceAlloc(prompt[0], selEdge1, bExtRef, &refUDF[0]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
-		status = ProUdfreferenceAlloc(prompt[1], selEdge2, bExtRef, &refUDF[1]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
-		// 创建UDF特征
-		ProGroup udf;
-		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
-		if (status == PRO_TK_NO_ERROR)
-		{
-			ProFeature* pFeatArray = NULL;
-			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
-			// 获取特征中的面
-			vector<ProModelitem> arrSrfs;
-			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
-			itemQlt.id = arrSrfs[0].id;
-			itemQlt.owner = arrSrfs[0].owner;
-			itemQlt.type = arrSrfs[0].type;
-			nRet = pFeatArray[1].id;
-			status = ProGroupUngroup(&udf);
-			status = ProArrayFree((ProArray*)&pFeatArray);
-		}
-		status = ProUdfdataFree(udfdata);
-		status = ProUdfreferenceFree(refUDF[0]);
-		status = ProUdfreferenceFree(refUDF[1]);
-	}
-	else
-		nRet = ER_INVALID_UDF;
-	return nRet;
-}
-
-int CreateBlendSurfByCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selCurve1, /*input*/ProSelection selCurve2,
-					/*output*/ProModelitem& itemQlt)
-{
-	int nRet = ER_CREATE_FAIL;
-	ProError status;
-
-	// 检查输入
-	if (selCurve1->sel_type != SEL_3D_CURVE || selCurve2->sel_type != SEL_3D_CURVE)
-		return ER_BAD_INPUT;
-
-	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\blendsurfbycurve.gph";
-	if (IsFileExist(strUDFPath))
-	{
-		ProBoolean bExtRef = PRO_B_FALSE;
-		if (selCurve1->assembly_ptr != NULL)
-			bExtRef = PRO_B_TRUE;
-
-		ProUdfdata udfdata;
-		status = ProUdfdataAlloc(&udfdata);
-		// 设置UDF路径
-		ProPath pathUDF;
-		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
-		status = ProUdfdataPathSet(udfdata, pathUDF);
-		// 获取参照项
-		ProUdfRequiredRef* parrRef = NULL;
-		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
-		ProLine prompt[2];
-		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
-		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
-		// 设置参照
-		ProUdfreference refUDF[2];
-		status = ProUdfreferenceAlloc(prompt[0], selCurve1, bExtRef, &refUDF[0]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
-		status = ProUdfreferenceAlloc(prompt[1], selCurve2, bExtRef, &refUDF[1]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
-		// 创建UDF特征
-		ProGroup udf;
-		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
-		if (status == PRO_TK_NO_ERROR)
-		{
-			ProFeature* pFeatArray = NULL;
-			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
-			// 获取特征中的面
-			vector<ProModelitem> arrSrfs;
-			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
-			itemQlt.id = arrSrfs[0].id;
-			itemQlt.owner = arrSrfs[0].owner;
-			itemQlt.type = arrSrfs[0].type;
-			nRet = pFeatArray[1].id;
-			status = ProGroupUngroup(&udf);
-			status = ProArrayFree((ProArray*)&pFeatArray);
-		}
-		status = ProUdfdataFree(udfdata);
-		status = ProUdfreferenceFree(refUDF[0]);
-		status = ProUdfreferenceFree(refUDF[1]);
-	}
-	else
-		nRet = ER_INVALID_UDF;
-	return nRet;
-}
-
 // 创建合并特征
-int MergeSurfs(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, 
+int MergeQuilts(/*input*/ProMdl pMdl, /*input*/const vector<ProSelection> &arrSelQuilts, 
 			   /*input*/ProSrfMrgType mrgType, ProFeature& feat)
 {
 	int nRet = ER_CREATE_FAIL;
@@ -1991,6 +2566,14 @@ int OffsetQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input
 	if (selInputQlt->sel_type != SEL_3D_SRF_LIST)
 		return ER_BAD_INPUT;
 
+	// 判断面组的默认偏离方向
+	ProQuilt quilt;
+	ProModelitem itemQuilt;
+	ProSelectionModelitemGet(selInputQlt, &itemQuilt);
+	ProGeomitemToQuilt(&itemQuilt, &quilt);
+	int nDefaultDir = GetDefaultOffsetDirection(quilt);
+	dOffset = dOffset*nDefaultDir;
+
 	// 检查UDF文件
 	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\offsetquilt.gph";
 	if (IsFileExist(strUDFPath))
@@ -2047,75 +2630,8 @@ int OffsetQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input
 	return nRet;
 }
 
-// 偏移曲面
-int OffsetSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*input*/double dOffset,
-				/*output*/ProModelitem& itemQlt)
-{
-	int nRet = ER_CREATE_FAIL;
-	ProError status;
-
-	// 检查输入
-	if (selInputSrf->sel_type != SEL_3D_SRF)
-		return ER_BAD_INPUT;
-
-	// 检查UDF文件
-	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\offsetsurf.gph";
-	if (IsFileExist(strUDFPath))
-	{
-		ProBoolean bExtRef = PRO_B_FALSE;
-		if (selInputSrf->assembly_ptr != NULL)
-			bExtRef = PRO_B_TRUE;
-
-		ProUdfdata udfdata;
-		status = ProUdfdataAlloc(&udfdata);
-		// 设置UDF路径
-		ProPath pathUDF;
-		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
-		status = ProUdfdataPathSet(udfdata, pathUDF);
-
-		// 获取参照项
-		ProUdfRequiredRef* parrRef = NULL;
-		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
-		ProLine prompt;
-		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt);
-
-		// 设置参照
-		ProUdfreference refUDF;
-		status = ProUdfreferenceAlloc(prompt, selInputSrf, bExtRef, &refUDF);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF);
-
-		// 设置偏移值
-		ProUdfvardim vardim;
-		status = ProUdfvardimAlloc(L"d10", dOffset, PROUDFVARTYPE_DIM, &vardim);
-		status = ProUdfdataUdfvardimAdd(udfdata, vardim);
-
-		// 创建UDF特征
-		ProGroup udf;
-		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
-		if (status == PRO_TK_NO_ERROR)
-		{
-			ProFeature* pFeatArray = NULL;
-			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
-			// 获取特征中的面
-			vector<ProModelitem> arrSrfs;
-			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
-			itemQlt.id = arrSrfs[0].id;
-			itemQlt.owner = arrSrfs[0].owner;
-			itemQlt.type = arrSrfs[0].type;
-			nRet = pFeatArray[1].id;
-			status = ProGroupUngroup(&udf);
-			status = ProArrayFree((ProArray*)&pFeatArray);
-		}
-		status = ProUdfdataFree(udfdata);
-		status = ProUdfreferenceFree(refUDF);
-	}
-	else
-		nRet = ER_INVALID_UDF;
-	return nRet;
-}
-
-// 单面偏移
-int OffsetSingleSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*/double dOffset)
+// 偏移面组（生成侧面）
+int OffsetSurfaceWithSide(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*input*/double dOffset)
 {
 	/*if (selQuilt->sel_type != SEL_3D_SRF_LIST)
 	return -1;*/
@@ -2266,8 +2782,84 @@ int OffsetSingleSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selInputQlt, /*
 	return nID;
 }
 
-// 创建投影特征（输入1个面和1个环）
-int CreateProjectCurve(ProMdl pMdl, ProSelection selQuilt, ProSelection selEdge)
+// 偏移曲面
+int OffsetSurface(/*input*/ProMdl pMdl, /*input*/ProSelection selInputSrf, /*input*/double dOffset,
+				/*output*/ProModelitem& itemQlt)
+{
+	int nRet = ER_CREATE_FAIL;
+	ProError status;
+
+	// 检查输入
+	if (selInputSrf->sel_type != SEL_3D_SRF)
+		return ER_BAD_INPUT;
+
+	// 判断面的默认偏离方向
+	ProSurface surf;
+	ProModelitem itemSurf;
+	ProSelectionModelitemGet(selInputSrf, &itemSurf);
+	ProGeomitemToSurface(&itemSurf, &surf);
+	int nDefaultDir = GetDefaultOffsetDirection(pMdl, surf);
+	dOffset = dOffset*nDefaultDir;
+
+	// 检查UDF文件
+	CString strUDFPath = theApp.m_strAppPath + L"\\Resource\\offsetsurf.gph";
+	if (IsFileExist(strUDFPath))
+	{
+		ProBoolean bExtRef = PRO_B_FALSE;
+		if (selInputSrf->assembly_ptr != NULL)
+			bExtRef = PRO_B_TRUE;
+
+		ProUdfdata udfdata;
+		status = ProUdfdataAlloc(&udfdata);
+		// 设置UDF路径
+		ProPath pathUDF;
+		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
+		status = ProUdfdataPathSet(udfdata, pathUDF);
+
+		// 获取参照项
+		ProUdfRequiredRef* parrRef = NULL;
+		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
+		ProLine prompt;
+		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt);
+
+		// 设置参照
+		ProUdfreference refUDF;
+		status = ProUdfreferenceAlloc(prompt, selInputSrf, bExtRef, &refUDF);
+		status = ProUdfdataReferenceAdd(udfdata, refUDF);
+
+		// 设置偏移值
+		ProUdfvardim vardim;
+		status = ProUdfvardimAlloc(L"d10", dOffset, PROUDFVARTYPE_DIM, &vardim);
+		status = ProUdfdataUdfvardimAdd(udfdata, vardim);
+
+		// 创建UDF特征
+		ProGroup udf;
+		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, NULL, 0, &udf);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			ProFeature* pFeatArray = NULL;
+			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
+
+			// 获取特征中的面
+			vector<ProModelitem> arrSrfs;
+			status = ProFeatureGeomitemVisit(&pFeatArray[1], PRO_QUILT, FeatureGeomsGetAction, NULL, &arrSrfs);
+			itemQlt.id = arrSrfs[0].id;
+			itemQlt.owner = arrSrfs[0].owner;
+			itemQlt.type = arrSrfs[0].type;
+			nRet = pFeatArray[1].id;
+			status = ProGroupUngroup(&udf);
+			status = ProArrayFree((ProArray*)&pFeatArray);
+		}
+		status = ProUdfdataFree(udfdata);
+		status = ProUdfreferenceFree(refUDF);
+	}
+	else
+		nRet = ER_INVALID_UDF;
+	return nRet;
+}
+
+// 通过投影方式创建曲线
+int CreateCurveByProject(ProMdl pMdl, ProSelection selQuilt, ProSelection selEdge)
 {
 	if (selQuilt->sel_type != SEL_3D_SRF_LIST || selEdge->sel_type != SEL_3D_EDG)
 		return -1;
@@ -2321,7 +2913,7 @@ int CreateProjectCurve(ProMdl pMdl, ProSelection selQuilt, ProSelection selEdge)
 	return nID;
 }
 
-// 将一组曲面输出到stl文件中
+// 将面导出至stl文件
 BOOL ExportStl(const vector<ProGeomitem> &arrSurfs, const CString& strStlPath, 
 			   double dAngleCntrol, double dChordHeight)
 {
@@ -2417,8 +3009,8 @@ BOOL ExportStl(const vector<ProGeomitem> &arrSurfs, const CString& strStlPath,
 	return bResult;
 }
 
-// 移除面（创建移除特征）
-int RemoveQuiltSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQltSrf)
+// 移除面组中的面
+int RemoveSurfInQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selQltSrf)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -2491,8 +3083,8 @@ int RemoveQuiltSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQltSrf)
 	return nRet;
 }
 
-// 延展面
-int ExtendSrfByEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge, /*input*/double dExtendDist)
+// 延展面的一条边
+int ExtendQuiltByEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge, /*input*/double dExtendDist)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -2571,8 +3163,8 @@ int ExtendSrfByEdge(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge, /*input
 	return nRet;
 }
 
-// 延展面
-int ExtendSrfByContour(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/double dExtendDist)
+// 延展面的整个外轮廓
+int ExtendQuiltByContour(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/double dExtendDist)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -2663,8 +3255,8 @@ int ExtendSrfByContour(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*i
 	return nRet;
 }
 
-// 延展到面
-int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/ProSelection selSrf)
+// 延展面组至参考面
+int ExtendQuiltToSurf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/ProSelection selSrf)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -2739,7 +3331,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 		int nExtendCount = 0;	// 记录需要偏移的面的个数
 
 		// 移除该面
-		int nTrimID = TrimSurface(pMdl, selQuilt, arrSelTrimEdges, nTrimEdgeDir);
+		int nTrimID = TrimQuiltByEdgeGroup(pMdl, selQuilt, arrSelTrimEdges, nTrimEdgeDir);
 		if (nTrimID > 0)
 		{
 			// 相关特征id数据（用于最后创建组）
@@ -2829,7 +3421,7 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 
 				ProSelection selExtendEdge;
 				status = ProSelectionAlloc(NULL, &arrItemExtendEdges[i], &selExtendEdge);
-				int nExtendID = ExtendSrfByEdge(pMdl, selExtendEdge, dRealDis);
+				int nExtendID = ExtendQuiltByEdge(pMdl, selExtendEdge, dRealDis);
 				if (nExtendID > 0)
 				{
 					status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &nExtendID);
@@ -2859,39 +3451,8 @@ int ExtendQuiltToSrf(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*inp
 	return nRet;
 }
 
-// 输出特征的xml
-void ExportElemTreeXML()
-{
-	ProError status;
-
-	ProSelection *pSelOpt = NULL;
-	int nSelCount = 0;
-	status = ProSelect("feature", 1, NULL, NULL, NULL, NULL, &pSelOpt, &nSelCount);
-	if (status == PRO_TK_NO_ERROR && nSelCount > 0)
-	{
-		ProFeature feat;
-		status = ProSelectionModelitemGet(pSelOpt[0], &feat);
-		ProElement elemTree;
-		status = ProFeatureElemtreeExtract(&feat, NULL, PRO_FEAT_EXTRACT_NO_OPTS, &elemTree);
-		if (status == PRO_TK_NO_ERROR)
-		{
-			ProName nameFeat;
-			status = ProModelitemNameGet(&feat, nameFeat);
-			CString strXml = nameFeat;
-			strXml.Format(L"C:\\Users\\beaut\\%s.xml", strXml);
-			ProPath pathXML;
-			wcsncpy_s(pathXML, PRO_PATH_SIZE, strXml, _TRUNCATE);
-			status = ProElemtreeWrite(elemTree, PRO_ELEMTREE_XML, pathXML);
-		}
-		else
-		{
-			MessageBox(NULL, L"无法获取该特征的特征树！", L"Error", MB_OK);
-		}
-	}
-}
-
 // 通过起始边和终止边创建曲线
-int CreateFromToCopyCurve(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, 
+int CreateFromToCurveByCopy(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, 
 						  /*output*/ProModelitem& itemCurve)
 {
 	int nRet = ER_CREATE_FAIL;
@@ -3042,234 +3603,6 @@ int CreateFromToChain(/*input*/ProMdl pMdl, /*input*/ProSelection selEdge1, /*in
 	return nRet;
 }
 
-// 判断两条边是否共面
-BOOL IsEdgeInSameSurf(/*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, /*output*/ProSelection& selSurf)
-{
-	ProError status;
-
-	ProGeomitem itemEdge1, itemEdge2;
-	status = ProSelectionModelitemGet(selEdge1, &itemEdge1);
-	status = ProSelectionModelitemGet(selEdge2, &itemEdge2);
-	ProEdge edge1, edge2;
-	status = ProGeomitemToEdge(&itemEdge1, &edge1);
-	status = ProGeomitemToEdge(&itemEdge2, &edge2);
-
-	ProEdge edgeNeigbor1[2], edgeNeigbor2[2];
-	ProSurface surfNeigbor1[2], surfNeigbor2[2];
-	status = ProEdgeNeighborsGet(edge1, &edgeNeigbor1[0], &edgeNeigbor1[1], &surfNeigbor1[0], &surfNeigbor1[1]);
-	status = ProEdgeNeighborsGet(edge2, &edgeNeigbor2[0], &edgeNeigbor2[1], &surfNeigbor2[0], &surfNeigbor2[1]);
-
-	ProSurface surfSame = NULL;
-	if (surfNeigbor1[0] == surfNeigbor2[0] || surfNeigbor1[0] == surfNeigbor2[1])
-		surfSame = surfNeigbor1[0];
-	else if (surfNeigbor1[1] == surfNeigbor2[0] || surfNeigbor1[1] == surfNeigbor2[1])
-		surfSame = surfNeigbor1[1];
-	else
-		return FALSE;
-
-	ProAsmcomppath comppath;
-	status = ProSelectionAsmcomppathGet(selEdge1, &comppath);
-	ProGeomitem itemSurfSame;
-	status = ProSurfaceToGeomitem(ProMdlToSolid(itemEdge1.owner), surfSame, &itemSurfSame);
-	ProSelectionAlloc(&comppath, &itemSurfSame, &selSurf);
-	return TRUE;
-}
-
-// 创建特征组
-int CreateFeatGroup(ProMdl pMdl, vector<int>& arrFeatID, const CString& strGroupName)
-{
-	int nRet = ER_CREATE_FAIL;
-	ProError status;
-
-	int* pArrFeatIDs = NULL;
-	status = ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&pArrFeatIDs);
-
-	for (int i=0; i<(int)arrFeatID.size(); i++)
-	{
-		status = ProArrayObjectAdd((ProArray*)&pArrFeatIDs, 0, 1, &arrFeatID[i]);
-	}
-
-	// 创建组
-	int nFeatsCount;
-	status = ProArraySizeGet(pArrFeatIDs, &nFeatsCount);
-	if (nFeatsCount >= 1)
-	{
-		ProName nameGroup;
-		wcsncpy_s(nameGroup, PRO_NAME_SIZE, strGroupName, _TRUNCATE);
-		ProGroup group;
-		status = ProLocalGroupCreate(ProMdlToSolid(pMdl), pArrFeatIDs, nFeatsCount, nameGroup, &group);
-		nRet = group.id;
-	}
-	return nRet;
-}
-
-//===================================================================================================
-
-BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge, ProSurface &pNeighborSurf)
-{
-	if (pSurface == NULL || pPublicEdge == NULL)
-		return FALSE;
-
-	ProError status;
-	ProSurface pSurface1, pSurface2;
-	status = ProEdgeNeighborsGet(pPublicEdge, NULL, NULL, &pSurface1, &pSurface2);
-	if (pSurface1 == NULL || pSurface2 == NULL)
-		return FALSE;
-
-	int nID, nID1, nID2;
-	status = ProSurfaceIdGet(pSurface, &nID);
-	status = ProSurfaceIdGet(pSurface1, &nID1);
-	status = ProSurfaceIdGet(pSurface2, &nID2);
-	if (nID == nID1)
-		pNeighborSurf = pSurface2;
-	else if (nID == nID2)
-		pNeighborSurf = pSurface1;
-	else
-		return FALSE;
-
-	return TRUE;
-}
-
-// 测量两个几何对象之间的距离
-BOOL MeasureDistance(ProGeomitem& item1, ProGeomitem& item2, double& dDistance, Pro3dPnt& pnt1, Pro3dPnt& pnt2)
-{
-	ProSelection pSel1 = NULL, pSel2 = NULL;
-	ProSelectionAlloc(NULL, &item1, &pSel1);
-	ProSelectionAlloc(NULL, &item2, &pSel2);
-	if (pSel1 != NULL && pSel2 != NULL)
-	{
-//#if (defined(DOCTOR_CREO2) || defined(DOCTOR_CREO3) || defined(DOCTOR_CREO4))
-//		Pro2dPnt param[2] ;
-//		Pro3dPnt pnt[2];
-//		if (ProSelectionDistanceEval(pSel1, pSel2, param[0], param[1], pnt1, pnt2, &dDistance) == PRO_TK_NO_ERROR)
-//		{
-//			return TRUE;
-//		}
-//
-//#else
-		double uvpar[2][2], xyz[2][3];
-		if (pro_dist_manifolds(pSel1, pSel2, uvpar, xyz, &dDistance) == 1)
-		{
-			for (int i=0; i<3; i++)
-			{
-				pnt1[i] = xyz[0][i];
-				pnt2[i] = xyz[1][i];
-			}
-			return TRUE;
-		}
-//#endif
-	}
-	return FALSE;
-}
-
-// 检查两个Quilt是否相邻
-BOOL CheckTwoQuiltNeighbor(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2, ProEdge& edge1, ProEdge& edge2)
-{
-	UNUSED_ALWAYS(edge1);
-	UNUSED_ALWAYS(edge2);
-	ProError status;
-
-	vector<ProSurface> arrQltSrfs1, arrQltSrfs2;
-	status = ProQuiltSurfaceVisit(quilt1, QuiltSurfacesGetAction, NULL, &arrQltSrfs1);
-	status = ProQuiltSurfaceVisit(quilt2, QuiltSurfacesGetAction, NULL, &arrQltSrfs2);
-	
-	for (int i=0; i<arrQltSrfs1.size(); i++)
-	{
-		for (int j=0; j<arrQltSrfs2.size(); j++)
-		{
-			ProModelitem itemSurf1, itemSurf2;
-			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs1[i], &itemSurf1);
-			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs2[j], &itemSurf2);
-
-			double dDis = -1.0;
-			Pro3dPnt pnt1, pnt2;
-			MeasureDistance(itemSurf1, itemSurf2, dDis, pnt1, pnt2);
-			if (DEQUAL(dDis, 0.0))
-			{
-				vector<ProSelection> arrSel;
-				ProModelitem itemQuilt1, itemQuilt2;
-				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt1, &itemQuilt1);
-				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt2, &itemQuilt2);
-				ProSelection selQuilt1 = NULL, selQuilt2 = NULL;
-				ProSelectionAlloc(NULL, &itemQuilt1, &selQuilt1);
-				ProSelectionAlloc(NULL, &itemQuilt2, &selQuilt2);
-				arrSel.push_back(selQuilt1);
-				arrSel.push_back(selQuilt2);
-				ProFeature featMerge;
-				int nFeatMerge = MergeSurfs(pMdl, arrSel, PRO_SRF_MRG_INTSCT, featMerge);
-				if (featMerge.id > 0)
-				{
-					int nfeatArray[] = {featMerge.id};
-					ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
-					ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
-				}
-
-				if (nFeatMerge>0)
-					return TRUE;
-
-				return FALSE;
-
-				// 判断两个quilt能否合并，如果合并失败，则不相邻，同时删除已创建的合并特征
-				//vector<ProContour> arrExContour;
-				//ProSurfaceContourVisit(arrQltSrfs2[i], SurfaceExtContoursGetAction, NULL, &arrExContour);
-
-				//for (int j=0; j<arrExContour.size(); j++)
-				//{
-				//	vector<ProEdge> arrExEdges;
-				//	status = ProContourEdgeVisit(arrQltSrfs2[i], arrExContour[j], ContourEdgesGetAction, NULL, &arrExEdges);
-
-				//	for (int k=0; k<arrExEdges.size(); k++)
-				//	{
-				//		// 检查边的端点是否都在平面内
-				//		for (int param=0; param<3; param++)
-				//		{
-				//			Pro3dPnt pntVertex;
-				//			ProEdgeXyzdataEval(arrExEdges[k], param/2.0, pntVertex, NULL, NULL, NULL);
-				//			ProBoolean bInSurface;
-				//			ProPoint3dOnsurfaceFind(pntVertex, arrQltSrfs1[i], &bInSurface, NULL);
-				//			if (bInSurface == PRO_B_FALSE)
-				//				return TRUE;
-				//		}
-				//	}
-				//}
-				//return FALSE;
-			}
-		}
-	}
-	
-	return FALSE;
-}
-
-// 检查两个Quilt是否相交
-BOOL CheckTwoQuiltInstersect(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2)
-{
-	ProError status;
-
-	vector<ProSurface> arrQltSrfs1, arrQltSrfs2;
-	status = ProQuiltSurfaceVisit(quilt1, QuiltSurfacesGetAction, NULL, &arrQltSrfs1);
-	status = ProQuiltSurfaceVisit(quilt2, QuiltSurfacesGetAction, NULL, &arrQltSrfs2);
-
-	for (int i=0; i<arrQltSrfs1.size(); i++)
-	{
-		for (int j=0; j<arrQltSrfs2.size(); j++)
-		{
-			ProModelitem itemSurf1, itemSurf2;
-			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs1[i], &itemSurf1);
-			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs2[j], &itemSurf2);
-
-			double dDis = -1.0;
-			Pro3dPnt pnt1, pnt2;
-			MeasureDistance(itemSurf1, itemSurf2, dDis, pnt1, pnt2);
-			if (DEQUAL(dDis, 0.0))
-			{
-				return TRUE;
-			}
-		}
-	}
-
-	return FALSE;
-}
-
 // 加厚面
 int ThickQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/double dThick)
 {
@@ -3278,6 +3611,14 @@ int ThickQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/do
 
 	if (selQuilt->sel_type != SEL_3D_SRF_LIST || DEQUAL(dThick, 0.0))
 		return ER_BAD_INPUT;
+
+	// 判断面组的默认偏离方向
+	ProQuilt quilt;
+	ProModelitem itemQuilt;
+	ProSelectionModelitemGet(selQuilt, &itemQuilt);
+	ProGeomitemToQuilt(&itemQuilt, &quilt);
+	int nDefaultDir = GetDefaultOffsetDirection(quilt);
+	dThick = dThick*nDefaultDir;
 
 	ProElement elemTree = NULL;
 	status = ProElementAlloc(PRO_E_FEATURE_TREE, &elemTree);
@@ -3371,38 +3712,6 @@ int ThickQuilt(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt, /*input*/do
 	ProFeatureElemtreeFree(&feat, elemTree);
 
 	return nRet;
-}
-
-// 获取指定面在面组中的连接面
-void GetNeighborSurfInQuilt(ProMdl pMdl, ProSurface qltface, ProQuilt quilt, vector<int>&arrNeighborface)
-{
-	ProError status;
-	arrNeighborface.clear();
-
-	vector<ProSurface> arrQltface;
-	status = ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrQltface);
-
-	ProModelitem itemQltface;
-	ProSurfaceToGeomitem(ProMdlToSolid(pMdl), qltface, &itemQltface);
-
-	for (int i=0; i<arrQltface.size(); i++)
-	{
-		if (arrQltface[i] != qltface)
-		{
-			ProModelitem itemNeighborface;
-			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltface[i], &itemNeighborface);
-
-			double dDis = -1.0;
-			Pro3dPnt pnt1, pnt2;
-			MeasureDistance(itemQltface, itemNeighborface, dDis, pnt1, pnt2);
-			if (DEQUAL(dDis, 0.0))
-			{
-				int nID;
-				ProSurfaceIdGet(arrQltface[i], &nID);
-				arrNeighborface.push_back(nID);
-			}
-		}
-	}
 }
 
 // 创建发布几何
@@ -3622,25 +3931,8 @@ int CreateCopyGeom(ProMdl pMdl, ProSelection selRefMdl, ProSelection selPubFeat,
 	return nRet;
 }
 
-// 加载STEP模型
-BOOL LoadStep(const CString& strFilePath, ProMdl& pMdl)
-{
-	ProError status;
-
-	ProPath filePath;
-	wcsncpy_s(filePath, PRO_PATH_SIZE, (LPCTSTR)strFilePath, _TRUNCATE);
-
-	CString strMdlName = GetFileNameNoExtByPath(strFilePath);
-	ProName mdlName;
-	wcsncpy_s(mdlName, PRO_NAME_SIZE, (LPCTSTR)strMdlName, _TRUNCATE);
-
-	status = ProIntfimportModelCreate(filePath, PRO_INTF_IMPORT_STEP, PRO_MDL_PART, mdlName, NULL, NULL, &pMdl);
-
-	return status == PRO_TK_NO_ERROR;
-}
-
-// 创建相交特征
-int CreateIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2, ProModelitem& itemCurve)
+// 通过面面相交创建曲线
+int CreateCurveByIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2, ProModelitem& itemCurve)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -3751,27 +4043,36 @@ int CreateIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2,
 	ProSelectionAlloc(NULL, &itemMdl, &selModel);
 
 	ProErrorlist errorsList;
-	ProFeatureCreateOptions opts[2] = {PRO_FEAT_CR_NO_OPTS};
+	ProFeatureCreateOptions opts[1] = {PRO_FEAT_CR_FIX_MODEL_ON_FAIL};
 	ProFeature feat;
 	status = ProFeatureCreate(selModel, elemTree, opts, 1, &feat, &errorsList);
 	if (status == PRO_TK_NO_ERROR)
 	{
-		// 获取特征中的面
-		vector<ProModelitem> arrCurves;
-		status = ProFeatureGeomitemVisit(&feat, PRO_CURVE, FeatureGeomsGetAction, NULL, &arrCurves);
-		if (status == PRO_TK_NO_ERROR)
+		int nfeatArray[] = {feat.id};
+		ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
+
+		if (errorsList.error_list->error != PRO_TK_NO_ERROR)
 		{
-			nRet = feat.id;
-			itemCurve.id = arrCurves[0].id;
-			itemCurve.owner = arrCurves[0].owner;
-			itemCurve.type = arrCurves[0].type;
+			// 删除特征
+			ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
 		}
 		else
 		{
-			// 删除特征
-			int nfeatArray[] = {feat.id};
-			ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
-			ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
+			// 获取特征中的曲线
+			vector<ProModelitem> arrCurves;
+			status = ProFeatureGeomitemVisit(&feat, PRO_CURVE, FeatureGeomsGetAction, NULL, &arrCurves);
+			if (status == PRO_TK_NO_ERROR)
+			{
+				nRet = feat.id;
+				itemCurve.id = arrCurves[0].id;
+				itemCurve.owner = arrCurves[0].owner;
+				itemCurve.type = arrCurves[0].type;
+			}
+			else
+			{
+				// 删除特征
+				ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
+			}
 		}
 	}
 	ProFeatureElemtreeFree(&feat, elemTree);
@@ -3779,164 +4080,8 @@ int CreateIntersect(ProMdl pMdl, ProSelection selQuilt1, ProSelection selQuilt2,
 	return nRet;
 }
 
-// 含单个面的面组转换为面
-BOOL QuiltToSurf(ProModelitem itemQuilt, ProModelitem& itemSurf)
-{
-	ProQuilt quilt;
-	ProGeomitemToQuilt(&itemQuilt, &quilt);
-	vector<ProSurface> arrQltface;
-	ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrQltface);
-	if (arrQltface.size() >= 1)
-	{
-		ProSurfaceToGeomitem(ProMdlToSolid(itemQuilt.owner), arrQltface[0], &itemSurf);
-		return TRUE;
-	}
-	else
-		return FALSE;
-}
-
-// 通过延展使两个面相交
-BOOL ExtendToInterSect(ProMdl pMdl, ProModelitem& itemQuilt1, ProModelitem& itemQuilt2, int& nFeatID1, int& nFeatID2)
-{
-	double dDis = 0.0, dLastExtend = 0.0;
-	Pro3dPnt pnt1, pnt2;
-	nFeatID1 = -1, nFeatID2 = -1;
-	ProFeature feat;
-	feat.id = -1;
-	feat.type = PRO_FEATURE;
-	feat.owner = pMdl;
-
-	ProModelitem itemQltface1, itemQltface2;
-	QuiltToSurf(itemQuilt1, itemQltface1);
-	QuiltToSurf(itemQuilt2, itemQltface2);
-	for (int i=0; i<50; i++)
-	{
-		MeasureDistance(itemQltface1, itemQltface2, dDis, pnt1, pnt2);
-		if (dDis > 0.0)
-		{
-			double dExtend = dDis*(1.2+i*1);
-
-			ProSelection selQuilt1;
-			ProSelectionAlloc(NULL, &itemQuilt1, &selQuilt1);
-			if (nFeatID1 > 0)
-			{
-				// 修改尺寸
-				feat.id = nFeatID1;
-				vector<ProDimension> arrDiemsion;
-				ProFeatureDimensionVisit(&feat, FeatureDimensionGetAction, NULL, &arrDiemsion);
-				double dNewExtend = dLastExtend+dExtend;
-				ProDimensionValueSet(&arrDiemsion[0], dNewExtend);
-				ProSolidRegenerate(ProMdlToSolid(pMdl), PRO_REGEN_FORCE_REGEN);
-			}
-			else
-			{
-				// 新建延伸特征
-				nFeatID1 = ExtendSrfByContour(pMdl, selQuilt1, dExtend);
-				if (nFeatID1 < 0)
-					return FALSE;
-			}
-
-			MeasureDistance(itemQltface1, itemQltface2, dDis, pnt1, pnt2);
-			if (dDis > 0.0)
-			{
-				ProSelection selQuilt2;
-				ProSelectionAlloc(NULL, &itemQuilt2, &selQuilt2);
-				if (nFeatID2 > 0)
-				{
-					// 修改尺寸
-					feat.id = nFeatID2;
-					vector<ProDimension> arrDiemsion;
-					ProFeatureDimensionVisit(&feat, FeatureDimensionGetAction, NULL, &arrDiemsion);
-					double dNewExtend = dLastExtend+dExtend;
-					ProDimensionValueSet(&arrDiemsion[0], dNewExtend);
-					ProSolidRegenerate(ProMdlToSolid(pMdl), PRO_REGEN_FORCE_REGEN);
-				}
-				else
-				{
-					nFeatID2 = ExtendSrfByContour(pMdl, selQuilt2, dExtend);
-					if (nFeatID2 < 0)
-						return FALSE;
-				}
-			}
-			else
-			{
-				break;
-			}
-			dLastExtend += dExtend;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return TRUE;
-}
-
-// 获取面上的一个点
-void GetPointOnSurface(ProMdl pMdl, ProSurface surf, Pro3dPnt& pntOnSurf)
-{
-	ProError status;
-	ProGeomitemdata* pSurfdata = NULL;
-	status = ProSurfaceDataGet(surf, &pSurfdata);
-	ProUvParam uvPnt;
-	uvPnt[0] = pSurfdata->data.p_surface_data->uv_min[0]+pSurfdata->data.p_surface_data->uv_max[0];
-	uvPnt[1] = pSurfdata->data.p_surface_data->uv_min[1]+pSurfdata->data.p_surface_data->uv_max[1];
-	uvPnt[0] /= 2;
-	uvPnt[1] /= 2;
-
-	ProVector vecPnt;
-	status = ProSurfaceXyzdataEval(surf, uvPnt, vecPnt, NULL, NULL, NULL);
-
-	// 判断选取的点是否在面的边界内
-	ProUvStatus uvStatus;
-	status = ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), surf, uvPnt, &uvStatus);
-	if (uvStatus == PRO_UV_INSIDE)
-	{
-		pntOnSurf[0] = vecPnt[0];
-		pntOnSurf[1] = vecPnt[1];
-		pntOnSurf[2] = vecPnt[2];
-	}
-	else
-	{
-		ProBoolean bOnSurf;
-		Pro3dPnt pntClose;
-		status = ProPoint3dOnsurfaceFind(vecPnt, surf, &bOnSurf, pntClose);
-		pntOnSurf[0] = pntClose[0];
-		pntOnSurf[1] = pntClose[1];
-		pntOnSurf[2] = pntClose[2];
-	}
-
-	ProGeomitemdataFree(&pSurfdata);
-}
-
-// 判断点是否在面内
-BOOL IsPntInsideSurf(ProMdl pMdl, ProSurface surf, Pro3dPnt pntOnSurf)
-{
-	ProError status;
-	ProBoolean bOnSurf;
-	Pro3dPnt pntClose;
-	status = ProPoint3dOnsurfaceFind(pntOnSurf, surf, &bOnSurf, pntClose);
-	if (!bOnSurf)
-	{
-		return FALSE;
-	}
-
-	// 获取点的UV值
-	ProUvParam uvPnt;
-	status = ProSurfaceParamEval(ProMdlToSolid(pMdl), surf, pntOnSurf, uvPnt);
-
-	ProUvStatus uvStatus;
-	status = ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), surf, uvPnt, &uvStatus);
-	if (uvStatus != PRO_UV_INSIDE)
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// 创建复制曲线（面的外环）
-int CreateContourCurve(ProMdl pMdl, ProSelection selQuilt, ProModelitem& itemCompCurve)
+// 通过复制面的外环创建曲线
+int CreateCurveByCopyContour(ProMdl pMdl, ProSelection selQuilt, ProModelitem& itemCompCurve)
 {
 	int nRet = ER_CREATE_FAIL;
 	ProError status;
@@ -4033,110 +4178,481 @@ int CreateContourCurve(ProMdl pMdl, ProSelection selQuilt, ProModelitem& itemCom
 	return nRet;
 }
 
-// 裁剪面 by 曲线（UDF方式）
-int TrimSurfWithCurveByUDF(/*input*/ProMdl pMdl, /*input*/ProSelection selQuilt,
-						   /*input*/ProSelection selTrimCurve, /*input*/ProSelection selContourCurve, int nMode)
+// 通过延展使两个面相交
+BOOL ExtendToInterSect(ProMdl pMdl, ProModelitem& itemQuilt1, ProModelitem& itemQuilt2, int& nFeatID1, int& nFeatID2)
 {
-	int nRet = ER_CREATE_FAIL;
-	ProError status;
+	double dDis = 0.0, dLastExtend = 0.0;
+	Pro3dPnt pnt1, pnt2;
+	nFeatID1 = -1, nFeatID2 = -1;
+	ProFeature feat;
+	feat.id = -1;
+	feat.type = PRO_FEATURE;
+	feat.owner = pMdl;
 
-	// 检查输入
-	if (GetSelectionType(selQuilt) != PRO_QUILT && 
-		GetSelectionType(selTrimCurve) != PRO_CURVE && 
-		GetSelectionType(selContourCurve) != PRO_CURVE)
-		return ER_BAD_INPUT;
-
-	// 获取曲线的起点和终点
-	ProModelitem itemTrimCurve;
-	ProSelectionModelitemGet(selTrimCurve, &itemTrimCurve);
-
-	// 获取边的顶点
-	ProModelitem itemPntStart, itemPntEnd;
-	itemPntStart.id = itemPntEnd.id = itemTrimCurve.id;
-	itemPntStart.type = PRO_CRV_START;
-	itemPntEnd.type = PRO_CRV_END;
-	itemPntStart.owner = itemPntEnd.owner = itemTrimCurve.owner;
-	ProSelection selPnt1, selPnt2;
-
-	// 检查UDF文件
-	CString strUDFPath;
-	switch (nMode)
+	ProModelitem itemQltface1, itemQltface2;
+	QuiltToSurf(itemQuilt1, itemQltface1);
+	QuiltToSurf(itemQuilt2, itemQltface2);
+	for (int i=0; i<50; i++)
 	{
-	default:
-	case 1:
-		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve.gph";
-		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt2);
-		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt1);
-		break;
-	case 2:
-		strUDFPath = theApp.m_strAppPath + L"\\Resource\\tirmbycurve2.gph";
-		status = ProSelectionAlloc(NULL, &itemPntStart, &selPnt1);
-		status = ProSelectionAlloc(NULL, &itemPntEnd, &selPnt2);
-		break;
-	}
-
-	if (IsFileExist(strUDFPath))
-	{
-		ProBoolean bRefExt = PRO_B_FALSE;
-		if (selQuilt->assembly_ptr != NULL)
-			bRefExt = PRO_B_TRUE;
-
-		ProUdfdata udfdata;
-		status = ProUdfdataAlloc(&udfdata);
-		// 设置UDF路径
-		ProPath pathUDF;
-		wcsncpy_s(pathUDF, PRO_PATH_SIZE, strUDFPath, _TRUNCATE);
-		status = ProUdfdataPathSet(udfdata, pathUDF);
-		// 获取参照项
-		ProUdfRequiredRef* parrRef = NULL;
-		status = ProUdfdataRequiredreferencesGet(udfdata, &parrRef);
-		ProLine prompt[5];
-		status = ProUdfrequiredrefPromptGet(parrRef[0], prompt[0]);
-		status = ProUdfrequiredrefPromptGet(parrRef[1], prompt[1]);
-		status = ProUdfrequiredrefPromptGet(parrRef[2], prompt[2]);
-		status = ProUdfrequiredrefPromptGet(parrRef[3], prompt[3]);
-		status = ProUdfrequiredrefPromptGet(parrRef[4], prompt[4]);
-		// 设置参照
-		ProUdfreference refUDF[5];
-		status = ProUdfreferenceAlloc(prompt[0], selQuilt, bRefExt, &refUDF[0]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[0]);
-		status = ProUdfreferenceAlloc(prompt[1], selTrimCurve, bRefExt, &refUDF[1]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[1]);
-		status = ProUdfreferenceAlloc(prompt[2], selPnt1, bRefExt, &refUDF[2]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[2]);
-		status = ProUdfreferenceAlloc(prompt[3], selContourCurve, bRefExt, &refUDF[3]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[3]);
-		status = ProUdfreferenceAlloc(prompt[4], selPnt2, bRefExt, &refUDF[4]);
-		status = ProUdfdataReferenceAdd(udfdata, refUDF[4]);
-
-		// 创建UDF特征
-		ProGroup udf;
-		ProUdfCreateOption opt[] = {PROUDFOPT_FIX_MODEL_UI_OFF};
-		status = ProUdfCreate(ProMdlToSolid(pMdl), udfdata, NULL, opt, 1, &udf);
-		if (status == PRO_TK_NO_ERROR)
+		MeasureDistance(itemQltface1, itemQltface2, dDis, pnt1, pnt2);
+		if (dDis > 0.0)
 		{
-			ProFeature* pFeatArray = NULL;
-			status = ProGroupFeaturesCollect(&udf, &pFeatArray);
-			if (status == PRO_TK_NO_ERROR)
+			double dExtend = dDis*(1.2+i*1);
+
+			ProSelection selQuilt1;
+			ProSelectionAlloc(NULL, &itemQuilt1, &selQuilt1);
+			if (nFeatID1 > 0)
 			{
-				nRet = pFeatArray[1].id;
-				status = ProGroupUngroup(&udf);
-				status = ProArrayFree((ProArray*)&pFeatArray);
+				// 修改尺寸
+				feat.id = nFeatID1;
+				vector<ProDimension> arrDiemsion;
+				ProFeatureDimensionVisit(&feat, FeatureDimensionGetAction, NULL, &arrDiemsion);
+				double dNewExtend = dLastExtend+dExtend;
+				ProDimensionValueSet(&arrDiemsion[0], dNewExtend);
+				ProSolidRegenerate(ProMdlToSolid(pMdl), PRO_REGEN_FORCE_REGEN);
 			}
+			else
+			{
+				// 新建延伸特征
+				nFeatID1 = ExtendQuiltByContour(pMdl, selQuilt1, dExtend);
+				if (nFeatID1 < 0)
+					return FALSE;
+			}
+
+			MeasureDistance(itemQltface1, itemQltface2, dDis, pnt1, pnt2);
+			if (dDis > 0.0)
+			{
+				ProSelection selQuilt2;
+				ProSelectionAlloc(NULL, &itemQuilt2, &selQuilt2);
+				if (nFeatID2 > 0)
+				{
+					// 修改尺寸
+					feat.id = nFeatID2;
+					vector<ProDimension> arrDiemsion;
+					ProFeatureDimensionVisit(&feat, FeatureDimensionGetAction, NULL, &arrDiemsion);
+					double dNewExtend = dLastExtend+dExtend;
+					ProDimensionValueSet(&arrDiemsion[0], dNewExtend);
+					ProSolidRegenerate(ProMdlToSolid(pMdl), PRO_REGEN_FORCE_REGEN);
+				}
+				else
+				{
+					nFeatID2 = ExtendQuiltByContour(pMdl, selQuilt2, dExtend);
+					if (nFeatID2 < 0)
+						return FALSE;
+				}
+			}
+			else
+			{
+				break;
+			}
+			dLastExtend += dExtend;
 		}
 		else
 		{
-			if (nMode < 2)
-				nRet = TrimSurfWithCurveByUDF(pMdl, selQuilt, selTrimCurve, selContourCurve, nMode+1);
+			break;
 		}
+	}
 
-		status = ProUdfreferenceFree(refUDF[0]);
-		status = ProUdfreferenceFree(refUDF[1]);
-		status = ProUdfreferenceFree(refUDF[2]);
-		status = ProUdfreferenceFree(refUDF[3]);
-		status = ProUdfreferenceFree(refUDF[4]);
+	return TRUE;
+}
+
+//===================================================================================================
+
+// 获取边所在的完整环（内环）
+BOOL GetContourByEdge(/*input*/ProSelection selEdge, /*output*/vector<ProSelection> &arrSelEdge, /*output*/int& nDir)
+{
+	ProError status;
+
+	// 获取边的相邻面
+	ProModelitem itemEdge;
+	status = ProSelectionModelitemGet(selEdge, &itemEdge);
+	ProEdge edge[3];
+	status = ProGeomitemToEdge(&itemEdge, &edge[0]);
+	ProSurface surfNeighbour[2];
+	status = ProEdgeNeighborsGet(edge[0], &edge[1], &edge[2], &surfNeighbour[0], &surfNeighbour[1]);
+	if (status != PRO_TK_NO_ERROR)
+		return FALSE;
+
+	// 检查面的环与边是否匹配
+	vector<ProContour> arrContours;
+	vector<ProEdge> arrEdges;
+	for (int i=0; i<2; i++)
+	{
+		arrContours.clear();
+		status = ProSurfaceContourVisit(surfNeighbour[i], SurfaceInnerContoursGetAction, NULL, &arrContours);
+		for (int j=0; j<(int)arrContours.size(); j++)
+		{
+			arrEdges.clear();
+			status = ProContourEdgeVisit(surfNeighbour[i], arrContours[j], ContourEdgesGetAction, NULL, &arrEdges);
+			for (int k=0; k<(int)arrEdges.size(); k++)
+			{
+				// 如果匹配
+				if (arrEdges[k] == edge[0])
+				{
+					arrSelEdge.clear();
+					ProAsmcomppath compath;
+					status = ProSelectionAsmcomppathGet(selEdge, &compath);
+					ProModelitem itemEdgeTemp;
+					for (int m=0; m<(int)arrEdges.size(); m++)
+					{
+						status = ProEdgeToGeomitem(ProMdlToSolid(itemEdge.owner), arrEdges[m], &itemEdgeTemp);
+						ProSelection selEdgeTemp;
+						status = ProSelectionAlloc(&compath, &itemEdgeTemp, &selEdgeTemp);
+						arrSelEdge.push_back(selEdgeTemp);
+					}
+					// 计算环的方向
+					ProEdgeDirGet(arrEdges[0], surfNeighbour[i], &nDir);
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+// 通过面上某条边的邻面
+BOOL GetNeighborSurfByEdge(ProSurface pSurface, ProEdge pPublicEdge, ProSurface &pNeighborSurf)
+{
+	if (pSurface == NULL || pPublicEdge == NULL)
+		return FALSE;
+
+	ProError status;
+	ProSurface pSurface1, pSurface2;
+	status = ProEdgeNeighborsGet(pPublicEdge, NULL, NULL, &pSurface1, &pSurface2);
+	if (pSurface1 == NULL || pSurface2 == NULL)
+		return FALSE;
+
+	int nID, nID1, nID2;
+	status = ProSurfaceIdGet(pSurface, &nID);
+	status = ProSurfaceIdGet(pSurface1, &nID1);
+	status = ProSurfaceIdGet(pSurface2, &nID2);
+	if (nID == nID1)
+		pNeighborSurf = pSurface2;
+	else if (nID == nID2)
+		pNeighborSurf = pSurface1;
+	else
+		return FALSE;
+
+	return TRUE;
+}
+
+// 检查两个面组是否相邻
+BOOL CheckTwoQuiltNeighbor(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2)
+{
+	ProError status;
+
+	vector<ProSurface> arrQltSrfs1, arrQltSrfs2;
+	status = ProQuiltSurfaceVisit(quilt1, QuiltSurfacesGetAction, NULL, &arrQltSrfs1);
+	status = ProQuiltSurfaceVisit(quilt2, QuiltSurfacesGetAction, NULL, &arrQltSrfs2);
+	
+	for (int i=0; i<arrQltSrfs1.size(); i++)
+	{
+		for (int j=0; j<arrQltSrfs2.size(); j++)
+		{
+			ProModelitem itemSurf1, itemSurf2;
+			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs1[i], &itemSurf1);
+			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs2[j], &itemSurf2);
+
+			double dDis = -1.0;
+			Pro3dPnt pnt1, pnt2;
+			MeasureDistance(itemSurf1, itemSurf2, dDis, pnt1, pnt2);
+			if (DEQUAL(dDis, 0.0))
+			{
+				vector<ProSelection> arrSel;
+				ProModelitem itemQuilt1, itemQuilt2;
+				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt1, &itemQuilt1);
+				ProQuiltToGeomitem(ProMdlToSolid(pMdl), quilt2, &itemQuilt2);
+				ProSelection selQuilt1 = NULL, selQuilt2 = NULL;
+				ProSelectionAlloc(NULL, &itemQuilt1, &selQuilt1);
+				ProSelectionAlloc(NULL, &itemQuilt2, &selQuilt2);
+				arrSel.push_back(selQuilt1);
+				arrSel.push_back(selQuilt2);
+				ProFeature featMerge;
+				int nFeatMerge = MergeQuilts(pMdl, arrSel, PRO_SRF_MRG_INTSCT, featMerge);
+				if (featMerge.id > 0)
+				{
+					int nfeatArray[] = {featMerge.id};
+					ProFeatureDeleteOptions opt[] = {PRO_FEAT_DELETE_NO_OPTS};
+					ProFeatureDelete(ProMdlToSolid(pMdl), nfeatArray, 1, opt, 1);
+				}
+
+				if (nFeatMerge>0)
+					return TRUE;
+
+				return FALSE;
+
+				// 判断两个quilt能否合并，如果合并失败，则不相邻，同时删除已创建的合并特征
+				//vector<ProContour> arrExContour;
+				//ProSurfaceContourVisit(arrQltSrfs2[i], SurfaceExtContoursGetAction, NULL, &arrExContour);
+
+				//for (int j=0; j<arrExContour.size(); j++)
+				//{
+				//	vector<ProEdge> arrExEdges;
+				//	status = ProContourEdgeVisit(arrQltSrfs2[i], arrExContour[j], ContourEdgesGetAction, NULL, &arrExEdges);
+
+				//	for (int k=0; k<arrExEdges.size(); k++)
+				//	{
+				//		// 检查边的端点是否都在平面内
+				//		for (int param=0; param<3; param++)
+				//		{
+				//			Pro3dPnt pntVertex;
+				//			ProEdgeXyzdataEval(arrExEdges[k], param/2.0, pntVertex, NULL, NULL, NULL);
+				//			ProBoolean bInSurface;
+				//			ProPoint3dOnsurfaceFind(pntVertex, arrQltSrfs1[i], &bInSurface, NULL);
+				//			if (bInSurface == PRO_B_FALSE)
+				//				return TRUE;
+				//		}
+				//	}
+				//}
+				//return FALSE;
+			}
+		}
+	}
+	
+	return FALSE;
+}
+
+// 检查两个面组是否相交
+BOOL CheckTwoQuiltInstersect(ProMdl pMdl, ProQuilt quilt1, ProQuilt quilt2)
+{
+	ProError status;
+
+	vector<ProSurface> arrQltSrfs1, arrQltSrfs2;
+	status = ProQuiltSurfaceVisit(quilt1, QuiltSurfacesGetAction, NULL, &arrQltSrfs1);
+	status = ProQuiltSurfaceVisit(quilt2, QuiltSurfacesGetAction, NULL, &arrQltSrfs2);
+
+	for (int i=0; i<arrQltSrfs1.size(); i++)
+	{
+		for (int j=0; j<arrQltSrfs2.size(); j++)
+		{
+			ProModelitem itemSurf1, itemSurf2;
+			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs1[i], &itemSurf1);
+			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltSrfs2[j], &itemSurf2);
+
+			double dDis = -1.0;
+			Pro3dPnt pnt1, pnt2;
+			MeasureDistance(itemSurf1, itemSurf2, dDis, pnt1, pnt2);
+			//MeasureDistance(itemSurf2, itemSurf1, dDis2, pnt1, pnt2);
+
+			if (ISNEAR(dDis, 0.0))
+			{
+				// 检查点是否在面的边界内
+				/*ProUvParam uvPnt1, uvPnt2;
+				ProSurfaceParamEval(ProMdlToSolid(pMdl), arrQltSrfs1[i], pnt1, uvPnt1);
+				ProSurfaceParamEval(ProMdlToSolid(pMdl), arrQltSrfs2[j], pnt2, uvPnt2);
+				ProUvStatus statusUV1, statusUV2;
+				ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), arrQltSrfs1[i], uvPnt1, &statusUV1);
+				ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), arrQltSrfs2[j], uvPnt2, &statusUV2);
+
+				if (statusUV1 == PRO_UV_OUTSIDE || statusUV2 == PRO_UV_OUTSIDE)
+					return FALSE;
+				else
+					return TRUE;*/
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+// 判断两条边是否共面
+BOOL IsEdgeInSameSurf(/*input*/ProSelection selEdge1, /*input*/ProSelection selEdge2, /*output*/ProSelection& selSurf)
+{
+	ProError status;
+
+	ProGeomitem itemEdge1, itemEdge2;
+	status = ProSelectionModelitemGet(selEdge1, &itemEdge1);
+	status = ProSelectionModelitemGet(selEdge2, &itemEdge2);
+	ProEdge edge1, edge2;
+	status = ProGeomitemToEdge(&itemEdge1, &edge1);
+	status = ProGeomitemToEdge(&itemEdge2, &edge2);
+
+	ProEdge edgeNeigbor1[2], edgeNeigbor2[2];
+	ProSurface surfNeigbor1[2], surfNeigbor2[2];
+	status = ProEdgeNeighborsGet(edge1, &edgeNeigbor1[0], &edgeNeigbor1[1], &surfNeigbor1[0], &surfNeigbor1[1]);
+	status = ProEdgeNeighborsGet(edge2, &edgeNeigbor2[0], &edgeNeigbor2[1], &surfNeigbor2[0], &surfNeigbor2[1]);
+
+	ProSurface surfSame = NULL;
+	if (surfNeigbor1[0] == surfNeigbor2[0] || surfNeigbor1[0] == surfNeigbor2[1])
+		surfSame = surfNeigbor1[0];
+	else if (surfNeigbor1[1] == surfNeigbor2[0] || surfNeigbor1[1] == surfNeigbor2[1])
+		surfSame = surfNeigbor1[1];
+	else
+		return FALSE;
+
+	ProAsmcomppath comppath;
+	status = ProSelectionAsmcomppathGet(selEdge1, &comppath);
+	ProGeomitem itemSurfSame;
+	status = ProSurfaceToGeomitem(ProMdlToSolid(itemEdge1.owner), surfSame, &itemSurfSame);
+	ProSelectionAlloc(&comppath, &itemSurfSame, &selSurf);
+	return TRUE;
+}
+
+// 获取指定面在面组中的连接面
+void GetNeighborSurfInQuilt(ProMdl pMdl, ProSurface qltface, ProQuilt quilt, vector<int>&arrNeighborface)
+{
+	ProError status;
+	arrNeighborface.clear();
+
+	vector<ProSurface> arrQltface;
+	status = ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrQltface);
+
+	ProModelitem itemQltface;
+	ProSurfaceToGeomitem(ProMdlToSolid(pMdl), qltface, &itemQltface);
+
+	for (int i=0; i<arrQltface.size(); i++)
+	{
+		if (arrQltface[i] != qltface)
+		{
+			ProModelitem itemNeighborface;
+			ProSurfaceToGeomitem(ProMdlToSolid(pMdl), arrQltface[i], &itemNeighborface);
+
+			double dDis = -1.0;
+			Pro3dPnt pnt1, pnt2;
+			MeasureDistance(itemQltface, itemNeighborface, dDis, pnt1, pnt2);
+			if (DEQUAL(dDis, 0.0))
+			{
+				int nID;
+				ProSurfaceIdGet(arrQltface[i], &nID);
+				arrNeighborface.push_back(nID);
+			}
+		}
+	}
+}
+
+// 含单个面的面组转换为曲面
+BOOL QuiltToSurf(ProModelitem itemQuilt, ProModelitem& itemSurf)
+{
+	ProQuilt quilt;
+	ProGeomitemToQuilt(&itemQuilt, &quilt);
+	vector<ProSurface> arrQltface;
+	ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrQltface);
+	if (arrQltface.size() >= 1)
+	{
+		ProSurfaceToGeomitem(ProMdlToSolid(itemQuilt.owner), arrQltface[0], &itemSurf);
+		return TRUE;
 	}
 	else
-		nRet = ER_INVALID_UDF;
-	return nRet;
+		return FALSE;
+}
+
+// 获取曲面上的一个点
+void GetPointOnSurface(ProMdl pMdl, ProSurface surf, Pro3dPnt& pntOnSurf)
+{
+	ProError status;
+	ProGeomitemdata* pSurfdata = NULL;
+	status = ProSurfaceDataGet(surf, &pSurfdata);
+	ProUvParam uvPnt;
+	uvPnt[0] = pSurfdata->data.p_surface_data->uv_min[0]+pSurfdata->data.p_surface_data->uv_max[0];
+	uvPnt[1] = pSurfdata->data.p_surface_data->uv_min[1]+pSurfdata->data.p_surface_data->uv_max[1];
+	uvPnt[0] /= 2;
+	uvPnt[1] /= 2;
+
+	ProVector vecPnt;
+	status = ProSurfaceXyzdataEval(surf, uvPnt, vecPnt, NULL, NULL, NULL);
+
+	// 判断选取的点是否在面的边界内
+	ProUvStatus uvStatus;
+	status = ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), surf, uvPnt, &uvStatus);
+	if (uvStatus == PRO_UV_INSIDE)
+	{
+		pntOnSurf[0] = vecPnt[0];
+		pntOnSurf[1] = vecPnt[1];
+		pntOnSurf[2] = vecPnt[2];
+	}
+	else
+	{
+		ProBoolean bOnSurf;
+		Pro3dPnt pntClose;
+		status = ProPoint3dOnsurfaceFind(vecPnt, surf, &bOnSurf, pntClose);
+		pntOnSurf[0] = pntClose[0];
+		pntOnSurf[1] = pntClose[1];
+		pntOnSurf[2] = pntClose[2];
+	}
+
+	ProGeomitemdataFree(&pSurfdata);
+}
+
+// 判断点是否在曲面内
+BOOL IsPntInsideSurf(ProMdl pMdl, ProSurface surf, Pro3dPnt pntOnSurf)
+{
+	ProError status;
+	ProBoolean bOnSurf;
+	Pro3dPnt pntClose;
+	status = ProPoint3dOnsurfaceFind(pntOnSurf, surf, &bOnSurf, pntClose);
+	if (!bOnSurf)
+	{
+		return FALSE;
+	}
+
+	// 获取点的UV值
+	ProUvParam uvPnt;
+	status = ProSurfaceParamEval(ProMdlToSolid(pMdl), surf, pntOnSurf, uvPnt);
+
+	ProUvStatus uvStatus;
+	status = ProSurfaceUvpntVerify(ProMdlToSolid(pMdl), surf, uvPnt, &uvStatus);
+	if (uvStatus != PRO_UV_INSIDE)
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+// 获取模型的最大尺寸（包络的对角线长度）
+double GetMaxSize(ProMdl pMdl)
+{
+	Pro3dPnt pntOutline[2];
+	ProSolidOutlineGet(ProMdlToSolid(pMdl), pntOutline);
+	double dMdlSize = abs(sqrt(pow((pntOutline[1][0]-pntOutline[0][0]),2)+pow((pntOutline[1][1]-pntOutline[0][1]),2)+pow((pntOutline[1][2]-pntOutline[0][2]),2)));
+	return dMdlSize;
+}
+
+// 获取曲面的默认偏离方向
+int GetDefaultOffsetDirection(ProMdl pMdl, ProSurface surf)
+{
+	ProError status;
+	int nOrient = PRO_SURF_ORIENT_NONE;
+	// 获取面所在的面组
+	ProQuilt quilt;
+	status = ProSurfaceQuiltGet(ProMdlToSolid(pMdl), surf, &quilt);
+	if (status == PRO_TK_NO_ERROR)
+	{
+		// 获取面组的默认偏离方向
+		nOrient = GetDefaultOffsetDirection(quilt);
+	}
+	else
+	{
+		// 获取面的方向
+		ProGeomitemdata* pData = NULL;
+		status = ProSurfaceDataGet(surf, &pData);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			nOrient = pData->data.p_surface_data->orient;
+		}
+		ProGeomitemdataFree(&pData);
+	}
+	return nOrient;
+}
+
+// 获取面组的默认偏离方向
+int GetDefaultOffsetDirection(ProQuilt quilt)
+{
+	ProError status;
+	int nOrient = PRO_SURF_ORIENT_NONE;
+	// 获取面组中的第一个面
+	vector<ProSurface> arrSurf;
+	status = ProQuiltSurfaceVisit(quilt, QuiltSurfacesGetAction, NULL, &arrSurf);
+	if (arrSurf.size() > 0)
+	{
+		// 获取面的方向
+		ProGeomitemdata* pData = NULL;
+		status = ProSurfaceDataGet(arrSurf[0], &pData);
+		if (status == PRO_TK_NO_ERROR)
+		{
+			nOrient = pData->data.p_surface_data->orient;
+		}
+		ProGeomitemdataFree(&pData);
+	}
+	return nOrient;
 }
