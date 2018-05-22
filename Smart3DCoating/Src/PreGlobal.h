@@ -66,6 +66,7 @@
 #include <ProThicken.h>
 #include <pd_prototype.h>
 #include <ProDataShareFeat.h>
+#include <ProDtmCsys.h>
 
 //===================================================================================================
 // （通用基础函数）

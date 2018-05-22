@@ -334,6 +334,34 @@ void OnLoadSolidActFn()
 		ProSolid solid;
 		ProSolidCreate(nameSolid, PRO_ASSEMBLY, &solid);
 
+		// 创建默认坐标系
+		ProError status;
+		ProElement elemTree = NULL;
+		ProElementAlloc(PRO_E_FEATURE_TREE, &elemTree);
+		{
+			// 特征类型PRO_E_FEATURE_TYPE
+			ProElement elemType;
+			status = ProElementAlloc(PRO_E_FEATURE_TYPE, &elemType);
+			status = ProElemtreeElementAdd(elemTree, NULL, elemType);
+			ProValueData valdataType;
+			valdataType.type = PRO_VALUE_TYPE_INT;
+			valdataType.v.i = PRO_FEAT_CSYS;
+			ProValue valueType = NULL;
+			status = ProValueAlloc(&valueType);
+			status = ProValueDataSet(valueType, &valdataType);
+			status = ProElementValueSet(elemType, valueType);
+		}
+		ProModelitem itemAssmble;
+		ProMdlToModelitem(ProAssemblyToMdl(solid), &itemAssmble);
+		ProSelection selAssmble;
+		ProSelectionAlloc(NULL, &itemAssmble, &selAssmble);
+
+		ProErrorlist errorsList;
+		ProFeatureCreateOptions opts[1] = {PRO_FEAT_CR_NO_OPTS};
+		ProFeature feat;
+		status = ProFeatureCreate(selAssmble, elemTree, opts, 1, &feat, &errorsList);
+
+
 		// 将选择的待装配模型装配到装配体下
 		ProMatrix initPos = {
 			{1.0, 0.0, 0.0, 0.0},
@@ -343,10 +371,13 @@ void OnLoadSolidActFn()
 		};
 		ProAsmcomp comp;
 		ProAsmcompAssemble(ProAssembly(solid), ProMdlToSolid(pMdlToCoating), initPos, &comp);
-		/*ProAsmcompconstraint compConstr;
+		ProAsmcompconstraint compConstr;
 		ProAsmcompconstraintAlloc(&compConstr);
-		ProAsmcompconstraintTypeGet(compConstr, ;
-		ProAsmcompConstraintsSet(NULL, &comp, &compConstr);*/
+		ProAsmcompconstraintTypeSet(compConstr, PRO_ASM_DEF_PLACEMENT);
+		ProAsmcompconstraint* compConstrs;
+		ProArrayAlloc (0, sizeof (ProAsmcompconstraint), 1, (ProArray*)&compConstrs);
+		status = ProArrayObjectAdd ((ProArray*)&compConstrs, -1, 1, &compConstr);
+		ProAsmcompConstraintsSet(NULL, &comp, compConstrs);
 
 		ProMdlDisplay(solid);
 		int nWnd;

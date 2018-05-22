@@ -84,6 +84,8 @@ void CDlgSetThick::OnOK()
 		ProGeomitemToQuilt(&m_itemQuiltBase, &quiltBase);
 
 		vector<int> arrFeatID;				// 记录过程中产生的全部特征ID
+		int* arrHideFeatID = NULL;
+		ProArrayAlloc(0, sizeof(int), 1, (ProArray*)&arrHideFeatID);
 		
 		// 第一步：为面组中的所有子面创建偏离面，并与偏离前的面建立关联
 		for (int i=0; i<nQltfaceCount; i++)
@@ -100,6 +102,7 @@ void CDlgSetThick::OnOK()
 			if (nFeatID > 0)
 			{
 				arrFeatID.push_back(nFeatID);
+				ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &nFeatID);
 
 				// 获取偏离后的面上的一个点
 				/*ProModelitem itemOffsetSurf;
@@ -159,6 +162,8 @@ void CDlgSetThick::OnOK()
 					int nFeatIntersect = CreateCurveByIntersect(pMdlPart, selOffsetQlt, selNeighborQlt, itemCurve);
 					if (nFeatIntersect > 0)
 					{
+						ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &nFeatIntersect);
+
 						arrIntersectFlag[i][nNeighborIndex] = arrIntersectFlag[nNeighborIndex][i] = 1;
 
 						// 以相交线进行裁剪，裁剪时判断基准点是否在裁剪后的面上，如果不在，反向
@@ -167,6 +172,7 @@ void CDlgSetThick::OnOK()
 
 						ProModelitem itemCopyContour1;
 						int nFeatCopyContour1 = CreateCurveByCopyContour(pMdlPart, selOffsetQlt, itemCopyContour1);
+						ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &nFeatCopyContour1);
 						
 						BOOL bOK = TRUE;
 						int nfeatArray[1];
@@ -197,6 +203,8 @@ void CDlgSetThick::OnOK()
 							if (!CheckIntersectAfterTrim(m_arrQltfaceData[i]))
 								ReverseTrimDirection(featTrim);
 
+							ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &featTrim.id);
+
 							/*if (!IsPntInsideSurf(pMdlPart, surfOffset, m_arrQltfaceData[i].pntOnOffset))
 							{
 								ReverseTrimDirection(featTrim);
@@ -205,7 +213,8 @@ void CDlgSetThick::OnOK()
 
 						ProModelitem itemCopyContour2;
 						int nFeatCopyContour2 = CreateCurveByCopyContour(pMdlPart, selNeighborQlt, itemCopyContour2);
-						
+						ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &nFeatCopyContour2);
+
 						ProSelection selCopyContour2;
 						ProSelectionAlloc(NULL, &itemCopyContour2, &selCopyContour2);
 						bOK = TRUE;
@@ -237,10 +246,11 @@ void CDlgSetThick::OnOK()
 							{
 								ReverseTrimDirection(featTrim);
 							}*/
+							ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &featTrim.id);
 						}
 
-						ProModelitemHide(&itemCopyContour1);
-						ProModelitemHide(&itemCopyContour2);
+						/*ProModelitemHide(&itemCopyContour1);
+						ProModelitemHide(&itemCopyContour2);*/
 					}
 				}
 			}
@@ -272,7 +282,9 @@ void CDlgSetThick::OnOK()
 		}
 
 		ProFeature featMerge;
-		MergeQuilts(pMdlPart, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
+		int nMergeFeatID = MergeQuilts(pMdlPart, arrSelMergeQuilt, PRO_SRF_MRG_INTSCT, featMerge);
+		if (nMergeFeatID > 0)
+			ProArrayObjectAdd((ProArray*)&arrHideFeatID, 0, 1, &nMergeFeatID);
 
 		// 第五步：整体按最大偏离值进行加厚
 		ProSelection selQuiltBase;
@@ -286,11 +298,18 @@ void CDlgSetThick::OnOK()
 			arrFeatID.push_back(nFeatID);
 		}
 
-		// 将其他辅助面隐藏
-		/*for (int i=0; i<nQltfaceCount; i++)
+		// 隐藏特征
+		int nFeatCount = 0;
+		ProArraySizeGet(arrHideFeatID, &nFeatCount);
+		ProFeature featHide;
+		featHide.type = PRO_FEATURE;
+		featHide.owner = pMdlPart;
+		for (int i=0; i<nFeatCount; i++)
 		{
-			ProModelitemHide(&m_arrQltfaceData[i].itemOffsetQlt);
-		}*/
+			featHide.id = arrHideFeatID[i];
+			ProModelitemHide(&featHide);
+		}
+		ProArrayFree((ProArray*)&arrHideFeatID);
 		CreateFeatGroup(pMdlPart, arrFeatID, L"包覆体");
 	}
 	
