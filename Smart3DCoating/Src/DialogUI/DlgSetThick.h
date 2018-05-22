@@ -108,7 +108,8 @@ public:
 	QltfaceDataArray m_arrQltfaceData;
 	QltfaceDataIndexMap m_mapQltfaceIndex;
 	double m_dMaxThick;
-	int m_nOffsetOrient;		// 向内加厚还是向外加厚				
+	int m_nOffsetOrient;		// 向内加厚还是向外加厚
+	BOOL m_bNoChange;
 
 protected:
 	//{{AFX_VIRTUAL(CDlgSetThick)	

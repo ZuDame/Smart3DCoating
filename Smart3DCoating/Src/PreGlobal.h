@@ -336,4 +336,7 @@ int GetDefaultOffsetDirection(ProMdl pMdl, ProSurface surf);
 // 获取面组的默认偏离方向
 int GetDefaultOffsetDirection(ProQuilt quilt);
 
+// 获取面组的面积
+double GetQuiltArea(ProQuilt);
+
 #endif
